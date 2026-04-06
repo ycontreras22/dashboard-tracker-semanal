@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Weekly Tracker Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Nunito',sans-serif;background:#f0f0f0;padding:24px 16px;min-height:100vh;}
+  h1{text-align:center;font-size:22px;font-weight:900;color:#444;margin-bottom:28px;letter-spacing:0.5px;}
+
+  .campaign-block{margin-bottom:32px;}
+  .campaign-title{font-size:15px;font-weight:900;letter-spacing:0.5px;margin-bottom:10px;padding-left:4px;}
+
+  .tabs{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+  .tab-btn{
+    padding:7px 18px;border-radius:30px;border:2px solid;
+    font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;
+    cursor:pointer;transition:all .18s;background:transparent;
+  }
+  .tab-btn.active{color:#fff;}
+  .tab-btn:not(.active){background:transparent;}
+
+  .cards-row{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-start;}
+
+  .card{
+    border-radius:18px;padding:16px 14px 14px;
+    display:flex;flex-direction:column;align-items:center;gap:8px;
+    min-width:160px;max-width:180px;flex:0 0 auto;
+  }
+  .card-title{font-size:12px;font-weight:800;color:#fff;text-align:center;line-height:1.3;opacity:.95;}
+  .card-total{font-size:11px;font-weight:700;color:rgba(255,255,255,0.8);margin-top:-4px;}
+
+  .donut-wrap{position:relative;width:100px;height:100px;flex-shrink:0;}
+  .donut-wrap canvas{width:100px!important;height:100px!important;}
+  .donut-pct{
+    position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+    font-size:17px;font-weight:900;color:#fff;pointer-events:none;
+    text-shadow:0 1px 3px rgba(0,0,0,0.18);
+  }
+
+  .legend{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+  .legend-item{display:flex;align-items:center;gap:4px;font-size:10.5px;font-weight:700;color:rgba(255,255,255,0.92);}
+  .legend-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+
+  .chip-list{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;margin-top:2px;}
+  .chip{
+    background:rgba(255,255,255,0.22);color:#fff;
+    font-size:9.5px;font-weight:700;border-radius:20px;
+    padding:3px 8px;text-align:center;line-height:1.3;
+  }
+
+  /* Dates card */
+  .card-dates{
+    border-radius:18px;padding:16px 14px;
+    display:flex;flex-direction:column;gap:8px;
+    width:145px;flex:0 0 145px;min-width:145px;
+  }
+  .card-dates .card-title{font-size:12px;font-weight:800;color:#fff;}
+  .date-block{border-radius:10px;padding:8px 10px;text-align:center;}
+  .date-label{font-size:9.5px;font-weight:800;color:rgba(255,255,255,0.75);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px;}
+  .date-value{font-size:11.5px;font-weight:900;color:#fff;line-height:1.2;}
+
+  .tab-panel{display:none;}
+  .tab-panel.active{display:block;}
+</style>
+</head>
+<body>
+<h1>Tracker semanal merch y promotoría</h1>
+<div id="app"></div>
+
+<script>
+const DATA = {
+  "LS Eclipse": {
+    "categories": {
+      "Primary POP": {"total_pos":2874,"pos_visit":2869,"pos_done":1670,"materials":["PLACA DE CIGARRERA"]},
+      "Secondary POP": {"total_pos":16629,"pos_visit":16629,"pos_done":16603,"materials":["ACOPLES","CORREAS MARCA PRECIO","GLORIFICADORES","JALAVISTA","STICKER DE FRÍO","TABLE TENT","VIBRIN"]},
+      "B2B Material": {"total_pos":1943,"pos_visit":1943,"pos_done":1943,"materials":["ABANICO","FLYER B2B","HOJA CATÁLOGO"]}
+    },
+    "kick_off":"16 Nov 2025","proj_end":"23 Mar 2026"
+  },
+  "LS Core": {
+    "categories": {
+      "Secondary POP": {"total_pos":226,"pos_visit":226,"pos_done":224,"materials":["CAVA","STICKER COUNTER","VIBRIN"]}
+    },
+    "kick_off":"08 Jan 2026","proj_end":"27 Mar 2026"
+  },
+  "Velo Ocassions": {
+    "categories": {
+      "Primary POP": {"total_pos":559,"pos_visit":559,"pos_done":557,"materials":["PLACA DE CIGARRERA"]},
+      "Secondary POP": {"total_pos":1610,"pos_visit":1610,"pos_done":1595,"materials":["DISPENSER VELO/VUSE","FLAP","FLYER","MANTELETA","PLACA DISPENSER","TRIPTICO"]}
+    },
+    "kick_off":"25 Nov 2025","proj_end":"30 Jan 2026"
+  },
+  "Velo Bodegas": {
+    "categories": {
+      "Primary POP": {"total_pos":44,"pos_visit":44,"pos_done":43,"materials":["PLACA DE CIGARRERA"]},
+      "Secondary POP": {"total_pos":410,"pos_visit":410,"pos_done":369,"materials":["JALAVISTAS","MÁSCARA","TABLE TENT"]}
+    },
+    "kick_off":"03 Feb 2026","proj_end":"10 Feb 2026"
+  },
+  "Vuse 3K": {
+    "categories": {
+      "Secondary POP": {"total_pos":1875,"pos_visit":1751,"pos_done":1636,"materials":["DIPTICO","DISPENSER VUSE/VUSE","PLACA DE DISPENSER","PLACA FACING","TABLE TENT"]},
+      "Primary POP": {"total_pos":561,"pos_visit":561,"pos_done":559,"materials":["PLACA DE CIGARRERA"]}
+    },
+    "kick_off":"12 Jan 2026","proj_end":"15 Apr 2026"
+  },
+  "Vuse 3K - Nuevo legal": {
+    "categories": {
+      "Primary POP": {"total_pos":956,"pos_visit":227,"pos_done":214,"materials":["PLACA DE CIGARRERA"]}
+    },
+    "kick_off":"24 Mar 2026","proj_end":"14 Apr 2026"
+  },
+  "Vuse": {
+    "categories": {
+      "Secondary POP": {"total_pos":1756,"pos_visit":1732,"pos_done":1701,"materials":["CENEFAS COUNTER","ESQUINERO","HEADER","MENUBOARD"]}
+    },
+    "kick_off":"22 Jan 2026","proj_end":"30 Mar 2026"
+  },
+  "VELO 8MG": {
+    "categories": {
+      "Secondary POP": {"total_pos":2759,"pos_visit":278,"pos_done":266,"materials":["DIPTICO","FLAP VELO - D. MULTICATEGORÍA","FRANJA VELO - D. MULTICATEGORÍA","FRANJA VUSE - D. MULTICATEGORÍA","MENUBOARD","PARED VELO - D. MULTICATEGORÍA","PLACA FACING","PLACA NICHO","REEL VELO 8MG","STICKER VUSE - D. MULTICATEGORÍA"]}
+    },
+    "kick_off":"23 Mar 2026","proj_end":"27 Apr 2026"
+  }
+};
+
+function getCampaignColors(name) {
+  const n = name.toUpperCase();
+  if (n.includes('ECLIPSE') || n.includes('VIBRIN')) return {main:'#e85d45',cardBg:'#fde8e4',datesBg:'#fcd6d0'};
+  if (n.includes('VELO')) return {main:'#3ab4e0',cardBg:'#daf0fb',datesBg:'#b8e3f5'};
+  if (n.includes('VUSE')) return {main:'#7c4fcc',cardBg:'#ede4fc',datesBg:'#d9c8f7'};
+  return {main:'#5b7fa6',cardBg:'#e4eaf3',datesBg:'#ccd5e3'};
+}
+
+// Category order
+const CAT_ORDER = ['B2B Material','Primary POP','Secondary POP','Special Implementations'];
+
+function sortCats(cats) {
+  return Object.entries(cats).sort((a,b) => {
+    return (CAT_ORDER.indexOf(a[0]) === -1 ? 99 : CAT_ORDER.indexOf(a[0])) - 
+           (CAT_ORDER.indexOf(b[0]) === -1 ? 99 : CAT_ORDER.indexOf(b[0]));
+  });
+}
+
+const chartInstances = {};
+
+function buildDonutCard(campaignName, catName, catData, viewMode, cardIdx) {
+  const colors = getCampaignColors(campaignName);
+  
+  // Compute values
+  let completed, reference, pending;
+  if (viewMode === 'prog') {
+    // Programación: POS_Visit / Total_POS
+    reference = catData.total_pos;
+    completed = catData.pos_visit;
+  } else {
+    // Efectividad: POS_Done / POS_Visit
+    reference = catData.pos_visit;
+    completed = catData.pos_done;
+  }
+  pending = Math.max(0, reference - completed);
+  const pct = reference > 0 ? Math.round(completed / reference * 100) : 0;
+
+  const canvasId = `chart_${campaignName.replace(/[^a-z0-9]/gi,'_')}_${catName.replace(/[^a-z0-9]/gi,'_')}_${viewMode}`;
+
+  const materialsHtml = catData.materials.map(m => `<span class="chip">${m}</span>`).join('');
+
+  return `
+    <div class="card" style="background:${colors.main};">
+      <div class="card-title">${catName}</div>
+      <div class="card-total">${reference.toLocaleString()} POS</div>
+      <div class="donut-wrap">
+        <canvas id="${canvasId}" width="100" height="100"></canvas>
+        <div class="donut-pct" id="pct_${canvasId}">${pct}%</div>
+      </div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:rgba(255,255,255,0.25)"></div>Pending</div>
+        <div class="legend-item"><div class="legend-dot" style="background:rgba(255,255,255,0.92)"></div>Completed</div>
+      </div>
+      <div class="chip-list">${materialsHtml}</div>
+    </div>
+  `;
+}
+
+function buildDatesCard(campaignName, kickOff, projEnd) {
+  const colors = getCampaignColors(campaignName);
+  return `
+    <div class="card-dates" style="background:${colors.cardBg};">
+      <div class="card-title" style="color:${colors.main};font-size:12px;font-weight:900;text-align:center;">📅 Campaign Dates</div>
+      <div class="date-block" style="background:${colors.datesBg};">
+        <div class="date-label" style="color:${colors.main};">Kick off</div>
+        <div class="date-value" style="color:${colors.main};">${kickOff}</div>
+      </div>
+      <div class="date-block" style="background:${colors.datesBg};">
+        <div class="date-label" style="color:${colors.main};">Projected end</div>
+        <div class="date-value" style="color:${colors.main};">${projEnd}</div>
+      </div>
+    </div>
+  `;
+}
+
+function buildCampaignBlock(name, campaignData) {
+  const colors = getCampaignColors(name);
+  const sortedCats = sortCats(campaignData.categories);
+  const blockId = name.replace(/[^a-z0-9]/gi,'_');
+
+  let progCards = sortedCats.map(([catName, catData]) => buildDonutCard(name, catName, catData, 'prog', 0)).join('');
+  progCards += buildDatesCard(name, campaignData.kick_off, campaignData.proj_end);
+
+  let efecCards = sortedCats.map(([catName, catData]) => buildDonutCard(name, catName, catData, 'efec', 0)).join('');
+  efecCards += buildDatesCard(name, campaignData.kick_off, campaignData.proj_end);
+
+  return `
+    <div class="campaign-block">
+      <div class="campaign-title" style="color:${colors.main};">${name.toUpperCase()}</div>
+      <div class="tabs">
+        <button class="tab-btn active" 
+          style="border-color:${colors.main};background:${colors.main};color:#fff;"
+          onclick="switchTab('${blockId}','prog',this,'${colors.main}')">
+          Programación de visitas
+        </button>
+        <button class="tab-btn"
+          style="border-color:${colors.main};color:${colors.main};"
+          onclick="switchTab('${blockId}','efec',this,'${colors.main}')">
+          Efectividad de visitas
+        </button>
+      </div>
+      <div id="${blockId}_prog" class="tab-panel active">
+        <div class="cards-row">${progCards}</div>
+      </div>
+      <div id="${blockId}_efec" class="tab-panel">
+        <div class="cards-row">${efecCards}</div>
+      </div>
+    </div>
+  `;
+}
+
+function switchTab(blockId, view, btn, color) {
+  const panels = document.querySelectorAll(`[id^="${blockId}_"]`);
+  panels.forEach(p => p.classList.remove('active'));
+  document.getElementById(`${blockId}_${view}`).classList.add('active');
+
+  const tabs = btn.parentElement.querySelectorAll('.tab-btn');
+  tabs.forEach(t => {
+    t.classList.remove('active');
+    t.style.background = 'transparent';
+    t.style.color = color;
+  });
+  btn.classList.add('active');
+  btn.style.background = color;
+  btn.style.color = '#fff';
+
+  // Init charts in newly shown panel
+  setTimeout(() => initChartsInPanel(blockId, view), 50);
+}
+
+function initChart(canvasId, completed, reference) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  if (chartInstances[canvasId]) return; // already done
+
+  const pending = Math.max(0, reference - completed);
+  const ctx = canvas.getContext('2d');
+  const chart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      datasets: [{
+        data: [pending, completed],
+        backgroundColor: ['rgba(255,255,255,0.25)', 'rgba(255,255,255,0.92)'],
+        borderWidth: 0,
+        hoverOffset: 0,
+      }]
+    },
+    options: {
+      responsive: false,
+      animation: {duration: 700},
+      cutout: '72%',
+      plugins: {legend:{display:false}, tooltip:{enabled:false}},
+    }
+  });
+  chartInstances[canvasId] = chart;
+}
+
+function initChartsInPanel(blockId, view) {
+  Object.entries(DATA).forEach(([campName, campData]) => {
+    const bid = campName.replace(/[^a-z0-9]/gi,'_');
+    if (bid !== blockId && blockId !== '__ALL__') return;
+    sortCats(campData.categories).forEach(([catName, catData]) => {
+      ['prog','efec'].forEach(vm => {
+        if (blockId !== '__ALL__' && vm !== view) return;
+        const canvasId = `chart_${campName.replace(/[^a-z0-9]/gi,'_')}_${catName.replace(/[^a-z0-9]/gi,'_')}_${vm}`;
+        let completed, reference;
+        if (vm === 'prog') {
+          reference = catData.total_pos;
+          completed = catData.pos_visit;
+        } else {
+          reference = catData.pos_visit;
+          completed = catData.pos_done;
+        }
+        initChart(canvasId, completed, reference);
+      });
+    });
+  });
+}
+
+// Build DOM
+const app = document.getElementById('app');
+Object.entries(DATA).forEach(([name, campData]) => {
+  app.innerHTML += buildCampaignBlock(name, campData);
+});
+
+// Init charts for all initially visible panels
+setTimeout(() => {
+  Object.keys(DATA).forEach(name => {
+    const blockId = name.replace(/[^a-z0-9]/gi,'_');
+    initChartsInPanel(blockId, 'prog');
+  });
+}, 100);
+</script>
+</body>
+</html>

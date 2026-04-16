@@ -1,327 +1,370 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Weekly Tracker Dashboard</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tracker Semanal — Campañas POP</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
-  *{box-sizing:border-box;margin:0;padding:0;}
-  body{font-family:'Nunito',sans-serif;background:#f0f0f0;padding:24px 16px;min-height:100vh;}
-  h1{text-align:center;font-size:22px;font-weight:900;color:#444;margin-bottom:28px;letter-spacing:0.5px;}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Nunito', sans-serif; background: #f0f0f0; min-height: 100vh; padding: 24px; }
 
-  .campaign-block{margin-bottom:32px;}
-  .campaign-title{font-size:15px;font-weight:900;letter-spacing:0.5px;margin-bottom:10px;padding-left:4px;}
+h1 { text-align: center; font-size: 22px; font-weight: 800; color: #333; margin-bottom: 24px; letter-spacing: -0.3px; }
 
-  .tabs{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
-  .tab-btn{
-    padding:7px 18px;border-radius:30px;border:2px solid;
-    font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;
-    cursor:pointer;transition:all .18s;background:transparent;
-  }
-  .tab-btn.active{color:#fff;}
-  .tab-btn:not(.active){background:transparent;}
+/* ── CAMPAIGN BLOCK ── */
+.campaign { margin-bottom: 28px; }
+.campaign-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.campaign-title { font-size: 17px; font-weight: 800; color: #222; }
+.campaign-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
 
-  .cards-row{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-start;}
+/* ── TABS ── */
+.tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+.tab {
+  padding: 7px 18px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.18s;
+  user-select: none;
+}
+.tab.inactive { background: transparent; }
+.tab.active { color: #fff; }
 
-  .card{
-    border-radius:18px;padding:16px 14px 14px;
-    display:flex;flex-direction:column;align-items:center;gap:8px;
-    min-width:160px;max-width:180px;flex:0 0 auto;
-  }
-  .card-title{font-size:12px;font-weight:800;color:#fff;text-align:center;line-height:1.3;opacity:.95;}
-  .card-total{font-size:11px;font-weight:700;color:rgba(255,255,255,0.8);margin-top:-4px;}
+/* ── CARDS ROW ── */
+.cards-row {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
 
-  .donut-wrap{position:relative;width:100px;height:100px;flex-shrink:0;}
-  .donut-wrap canvas{width:100px!important;height:100px!important;}
-  .donut-pct{
-    position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-    font-size:17px;font-weight:900;color:#fff;pointer-events:none;
-    text-shadow:0 1px 3px rgba(0,0,0,0.18);
-  }
+/* ── POP CARD ── */
+.pop-card {
+  border-radius: 18px;
+  padding: 16px;
+  min-width: 185px;
+  flex: 1;
+  max-width: 260px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.pop-card-title {
+  font-size: 12px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: 0.2px;
+  line-height: 1.3;
+}
+.pop-card-pos {
+  font-size: 11px;
+  color: rgba(255,255,255,0.75);
+  margin-top: -6px;
+  font-weight: 600;
+}
 
-  .legend{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
-  .legend-item{display:flex;align-items:center;gap:4px;font-size:10.5px;font-weight:700;color:rgba(255,255,255,0.92);}
-  .legend-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+/* ── DONUT WRAP ── */
+.donut-container {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  flex-shrink: 0;
+  align-self: center;
+}
+.donut-pct {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 17px;
+  font-weight: 900;
+  color: #fff;
+  pointer-events: none;
+  white-space: nowrap;
+}
 
-  .chip-list{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;margin-top:2px;}
-  .chip{
-    background:rgba(255,255,255,0.22);color:#fff;
-    font-size:9.5px;font-weight:700;border-radius:20px;
-    padding:3px 8px;text-align:center;line-height:1.3;
-  }
+/* ── LEGEND ── */
+.legend { display: flex; gap: 10px; flex-wrap: wrap; }
+.legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: rgba(255,255,255,0.85); font-weight: 600; }
+.legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 
-  /* Dates card */
-  .card-dates{
-    border-radius:18px;padding:16px 14px;
-    display:flex;flex-direction:column;gap:8px;
-    width:145px;flex:0 0 145px;min-width:145px;
-  }
-  .card-dates .card-title{font-size:12px;font-weight:800;color:#fff;}
-  .date-block{border-radius:10px;padding:8px 10px;text-align:center;}
-  .date-label{font-size:9.5px;font-weight:800;color:rgba(255,255,255,0.75);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px;}
-  .date-value{font-size:11.5px;font-weight:900;color:#fff;line-height:1.2;}
+/* ── MATERIAL CHIPS ── */
+.chips { display: flex; flex-wrap: wrap; gap: 5px; }
+.chip {
+  background: rgba(255,255,255,0.22);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 20px;
+  letter-spacing: 0.1px;
+}
 
-  .tab-panel{display:none;}
-  .tab-panel.active{display:block;}
+/* ── DATES CARD ── */
+.dates-card {
+  border-radius: 18px;
+  padding: 16px;
+  width: 145px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.dates-card-title {
+  font-size: 12px;
+  font-weight: 800;
+  color: #333;
+  letter-spacing: 0.2px;
+}
+.dates-section {
+  border-radius: 10px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.dates-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #555;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+.dates-value {
+  font-size: 12px;
+  font-weight: 800;
+  color: #222;
+  word-break: break-word;
+}
+
+/* ── VIEW PANEL ── */
+.view-panel { display: none; }
+.view-panel.active { display: block; }
 </style>
 </head>
 <body>
-<h1>Tracker semanal merch y promotoría</h1>
+
+<h1>Tracker Semanal</h1>
 <div id="app"></div>
 
 <script>
-const DATA = {
-  "LS Eclipse": {
-    "categories": {
-      "Primary POP": {"total_pos":2874,"pos_visit":2869,"pos_done":1670,"materials":["PLACA DE CIGARRERA"]},
-      "Secondary POP": {"total_pos":16629,"pos_visit":16629,"pos_done":16603,"materials":["ACOPLES","CORREAS MARCA PRECIO","GLORIFICADORES","JALAVISTA","STICKER DE FRÍO","TABLE TENT","VIBRIN"]},
-      "B2B Material": {"total_pos":1943,"pos_visit":1943,"pos_done":1943,"materials":["ABANICO","FLYER B2B","HOJA CATÁLOGO"]}
-    },
-    "kick_off":"16 Nov 2025","proj_end":"23 Mar 2026"
-  },
-  "LS Core": {
-    "categories": {
-      "Secondary POP": {"total_pos":226,"pos_visit":226,"pos_done":224,"materials":["CAVA","STICKER COUNTER","VIBRIN"]}
-    },
-    "kick_off":"08 Jan 2026","proj_end":"27 Mar 2026"
-  },
-  "Velo Ocassions": {
-    "categories": {
-      "Primary POP": {"total_pos":559,"pos_visit":559,"pos_done":557,"materials":["PLACA DE CIGARRERA"]},
-      "Secondary POP": {"total_pos":1610,"pos_visit":1610,"pos_done":1595,"materials":["DISPENSER VELO/VUSE","FLAP","FLYER","MANTELETA","PLACA DISPENSER","TRIPTICO"]}
-    },
-    "kick_off":"25 Nov 2025","proj_end":"30 Jan 2026"
-  },
-  "Velo Bodegas": {
-    "categories": {
-      "Primary POP": {"total_pos":44,"pos_visit":44,"pos_done":43,"materials":["PLACA DE CIGARRERA"]},
-      "Secondary POP": {"total_pos":410,"pos_visit":410,"pos_done":369,"materials":["JALAVISTAS","MÁSCARA","TABLE TENT"]}
-    },
-    "kick_off":"03 Feb 2026","proj_end":"10 Feb 2026"
-  },
-  "Vuse 3K": {
-    "categories": {
-      "Secondary POP": {"total_pos":1875,"pos_visit":1751,"pos_done":1636,"materials":["DIPTICO","DISPENSER VUSE/VUSE","PLACA DE DISPENSER","PLACA FACING","TABLE TENT"]},
-      "Primary POP": {"total_pos":561,"pos_visit":561,"pos_done":559,"materials":["PLACA DE CIGARRERA"]}
-    },
-    "kick_off":"12 Jan 2026","proj_end":"15 Apr 2026"
-  },
-  "Vuse 3K - Nuevo legal": {
-    "categories": {
-      "Primary POP": {"total_pos":956,"pos_visit":227,"pos_done":214,"materials":["PLACA DE CIGARRERA"]}
-    },
-    "kick_off":"24 Mar 2026","proj_end":"14 Apr 2026"
-  },
-  "Vuse": {
-    "categories": {
-      "Secondary POP": {"total_pos":1756,"pos_visit":1732,"pos_done":1701,"materials":["CENEFAS COUNTER","ESQUINERO","HEADER","MENUBOARD"]}
-    },
-    "kick_off":"22 Jan 2026","proj_end":"30 Mar 2026"
-  },
-  "VELO 8MG": {
-    "categories": {
-      "Secondary POP": {"total_pos":2759,"pos_visit":278,"pos_done":266,"materials":["DIPTICO","FLAP VELO - D. MULTICATEGORÍA","FRANJA VELO - D. MULTICATEGORÍA","FRANJA VUSE - D. MULTICATEGORÍA","MENUBOARD","PARED VELO - D. MULTICATEGORÍA","PLACA FACING","PLACA NICHO","REEL VELO 8MG","STICKER VUSE - D. MULTICATEGORÍA"]}
-    },
-    "kick_off":"23 Mar 2026","proj_end":"27 Apr 2026"
+const DATA = [{"name":"LS Eclipse","colors":{"accent":"#e85d45","card":"#fde8e4","dates":"#fcd6d0"},"categories":[{"name":"B2B Material","total_pos":1943,"pos_visit":1943,"pos_done":1943,"materials":["ABANICO","FLYER B2B","HOJA CATÁLOGO"]},{"name":"Primary POP","total_pos":2874,"pos_visit":2869,"pos_done":1670,"materials":["PLACA DE CIGARRERA"]},{"name":"Secondary POP","total_pos":16629,"pos_visit":16629,"pos_done":16611,"materials":["ACOPLES","CORREAS MARCA PRECIO","GLORIFICADORES","JALAVISTA","STICKER DE FRÍO","TABLE TENT","VIBRIN"]}],"dates":{"orig":["26/11/2025","03/12/2025","03/12/2025","02/12/2025","02/12/2025","28/11/2025","02/12/2025","02/12/2025","02/12/2025","25/11/2025","28/11/2025","28/11/2025","25/11/2025","28/11/2025","28/11/2025","02/12/2025","28/11/2025","28/11/2025","20/11/2025","03/12/2025","27/11/2025","02/01/2026","02/01/2026","19/11/2025","03/12/2025","16/11/2025","27/11/2025","04/12/2025","04/12/2025","04/12/2025","04/12/2025","04/12/2025","27/11/2025","10/12/2025","10/12/2025","10/12/2025","19/11/2025","03/12/2025","03/12/2025","20/01/2026","20/01/2026","20/01/2026","27/11/2025","27/11/2025","04/12/2025","04/01/2026","04/01/2026","27/11/2025","27/11/2025","27/11/2025","02/12/2025","03/01/2026","03/01/2026","02/12/2025","02/12/2025","02/12/2025"],"deadline":["17/12/2025","30/12/2025","30/12/2025","02/12/2025","02/12/2025","28/11/2025","02/12/2025","02/12/2025","02/12/2025","25/11/2025","28/11/2025","28/11/2025","25/11/2025","28/11/2025","28/11/2025","02/12/2025","02/12/2025","02/12/2025","27/11/2025","10/12/2025","16/12/2025","09/01/2026","09/01/2026","04/12/2025","10/12/2025","01/12/2025","05/12/2025","10/12/2025","10/12/2025","22/12/2025","22/12/2025","22/12/2025","16/12/2025","12/12/2025","12/12/2025","12/12/2025","04/12/2025","10/12/2025","10/12/2025","06/02/2026","06/02/2026","06/02/2026","16/12/2025","05/12/2025","05/01/2026","16/12/2025","10/01/2026","10/01/2026","10/01/2026","10/12/2025","10/12/2025","10/12/2025"],"new_deadline":["09/01/2025","12/01/2025","12/01/2025","12/01/2025","23/03/2026","23/03/2026","23/03/2026"]}},{"name":"LS Core","colors":{"accent":"#5b7fa6","card":"#e4eaf3","dates":"#ccd5e3"},"categories":[{"name":"Secondary POP","total_pos":266,"pos_visit":257,"pos_done":252,"materials":["CAVA","STICKER COUNTER","TABLE TENT","VIBRIN"]}],"dates":{"orig":["06/03/2026","11/03/2026","11/03/2026","08/01/2026","06/03/2026","11/03/2026","11/03/2026","01/04/2026","01/04/2026","01/04/2026"],"deadline":["20/03/2026","27/03/2026","20/03/2026","25/01/2026","20/03/2026","20/03/2026","19/03/2026","18/04/2026","18/04/2026","18/04/2026"],"new_deadline":["27/01/2026","27/01/2026","27/01/2026"]}},{"name":"Velo Ocassions","colors":{"accent":"#3ab4e0","card":"#daf0fb","dates":"#b8e3f5"},"categories":[{"name":"Primary POP","total_pos":559,"pos_visit":559,"pos_done":557,"materials":["PLACA DE CIGARRERA"]},{"name":"Secondary POP","total_pos":1610,"pos_visit":1610,"pos_done":1595,"materials":["DISPENSER VELO/VUSE","FLAP","FLYER","MANTELETA","PLACA DISPENSER","TRIPTICO"]}],"dates":{"orig":["25/11/2025","28/11/2025","01/12/2025","01/12/2025","01/12/2025","01/12/2025","25/11/2025","28/11/2025","01/12/2025","01/12/2025","01/12/2025","01/12/2025","27/11/2025","10/12/2025","01/12/2025","01/12/2025","01/12/2025","01/12/2025","25/11/2025","28/11/2025","28/11/2025","28/11/2025","01/12/2025","01/12/2025","01/12/2025","10/12/2025","23/12/2025","23/12/2025","01/12/2025","01/12/2025","01/12/2025","25/11/2025","28/11/2025","01/12/2025","01/12/2025","25/11/2025"],"deadline":["05/12/2025","03/12/2025","18/12/2025","18/12/2025","18/12/2025","18/12/2025","05/12/2025","03/12/2025","18/12/2025","18/12/2025","18/12/2025","18/12/2025","12/12/2025","12/12/2025","18/12/2025","18/12/2025","18/12/2025","18/12/2025","05/12/2025","08/12/2025","03/12/2025","03/12/2025","18/12/2025","18/12/2025","18/12/2025","27/12/2025","09/01/2026","09/01/2026","18/12/2025","18/12/2025","18/12/2025","30/01/2026","22/01/2026","18/12/2025","18/12/2025","05/12/2025"],"new_deadline":[]}},{"name":"Velo Bodegas","colors":{"accent":"#3ab4e0","card":"#daf0fb","dates":"#b8e3f5"},"categories":[{"name":"Primary POP","total_pos":44,"pos_visit":44,"pos_done":43,"materials":["PLACA DE CIGARRERA"]},{"name":"Secondary POP","total_pos":410,"pos_visit":410,"pos_done":369,"materials":["JALAVISTAS","MÁSCARA","TABLE TENT"]}],"dates":{"orig":["03/02/2026","03/02/2026","03/02/2026","03/02/2026"],"deadline":["10/02/2026","10/02/2026","10/02/2026","10/02/2026"],"new_deadline":[]}},{"name":"Vuse 3K","colors":{"accent":"#7c4fcc","card":"#ede4fc","dates":"#d9c8f7"},"categories":[{"name":"Primary POP","total_pos":561,"pos_visit":561,"pos_done":559,"materials":["PLACA DE CIGARRERA"]},{"name":"Secondary POP","total_pos":1875,"pos_visit":1751,"pos_done":1646,"materials":["DIPTICO","DISPENSER VUSE/VUSE","PLACA DE DISPENSER","PLACA FACING","TABLE TENT"]}],"dates":{"orig":["22/01/2026","22/01/2026","22/01/2026","26/01/2026","26/01/2026","26/01/2026","11/03/2026","13/01/2026","12/01/2026","12/01/2026","12/01/2026","12/01/2026","22/01/2026","22/01/2026","11/03/2026","11/03/2026"],"deadline":["09/02/2026","09/02/2026","09/02/2026","12/02/2026","12/02/2026","12/02/2026","12/03/2026","26/01/2026","28/01/2026","28/01/2026","28/01/2026","28/01/2026","24/01/2026","24/01/2026","17/03/2026","17/03/2026"],"new_deadline":["30/03/2026","30/03/2026","30/03/2026","15/04/2026","11/02/2026","11/02/2026","11/02/2026","11/02/2026","11/02/2026","23/03/2026"]}},{"name":"Vuse 3K - Nuevo legal","colors":{"accent":"#7c4fcc","card":"#ede4fc","dates":"#d9c8f7"},"categories":[{"name":"Primary POP","total_pos":606,"pos_visit":445,"pos_done":439,"materials":["PLACA DE CIGARRERA"]},{"name":"Secondary POP","total_pos":507,"pos_visit":112,"pos_done":97,"materials":["FRANJA VUSE - D. MULTICATEGORÍA","STICKER VUSE - D. MULTICATEGORÍA"]}],"dates":{"orig":["24/03/2026","06/04/2026","24/03/2026","06/04/2026"],"deadline":["14/04/2026","27/04/2026","14/04/2026","27/04/2026"],"new_deadline":[]}},{"name":"Vuse","colors":{"accent":"#7c4fcc","card":"#ede4fc","dates":"#d9c8f7"},"categories":[{"name":"Secondary POP","total_pos":1759,"pos_visit":1759,"pos_done":1722,"materials":["CENEFAS COUNTER","ESQUINERO","HEADER","MENUBOARD"]}],"dates":{"orig":["06/03/2026","11/03/2026","11/03/2026","22/01/2026","22/01/2026","22/01/2026","18/02/2026","18/02/2026","18/02/2026","18/02/2026","18/02/2026","18/02/2026","20/02/2026","20/02/2026","20/02/2026"],"deadline":["20/03/2026","20/03/2026","19/03/2026","09/02/2026","09/02/2026","24/01/2026","07/03/2026","07/03/2026","07/03/2026","07/03/2026","07/03/2026","07/03/2026","07/03/2026","07/03/2026","07/03/2026"],"new_deadline":["30/03/2026","30/03/2026","11/02/2026","24/03/2026","24/03/2026","24/03/2026","24/03/2026","24/03/2026","24/03/2026","16/03/2026","16/03/2026","16/03/2026"]}},{"name":"VELO 8MG","colors":{"accent":"#3ab4e0","card":"#daf0fb","dates":"#b8e3f5"},"categories":[{"name":"Secondary POP","total_pos":2387,"pos_visit":913,"pos_done":837,"materials":["DIPTICO","FLAP VELO - D. MULTICATEGORÍA","FRANJA VELO - D. MULTICATEGORÍA","MENUBOARD","PARED VELO - D. MULTICATEGORÍA","PLACA FACING","PLACA NICHO","REEL VELO 8MG"]}],"dates":{"orig":["06/04/2026","06/04/2026","23/03/2026","23/03/2026","06/04/2026","06/04/2026","23/03/2026","23/03/2026","06/04/2026","06/04/2026","06/04/2026","06/04/2026","06/04/2026","06/04/2026","23/03/2026","23/03/2026","06/04/2026","06/04/2026","06/04/2026","06/04/2026","06/04/2026","23/03/2026","23/03/2026","06/04/2026","06/04/2026","06/04/2026","06/04/2026","06/04/2026"],"deadline":["27/04/2026","27/04/2026","09/04/2026","09/04/2026","27/04/2026","27/04/2026","09/04/2026","09/04/2026","27/04/2026","27/04/2026","27/04/2026","27/04/2026","27/04/2026","27/04/2026","09/04/2026","09/04/2026","27/04/2026","27/04/2026","27/04/2026","27/04/2026","27/04/2026","09/04/2026","09/04/2026","27/04/2026","27/04/2026","27/04/2026","27/04/2026","27/04/2026"],"new_deadline":[]}},{"name":"Velo semáforo","colors":{"accent":"#3ab4e0","card":"#daf0fb","dates":"#b8e3f5"},"categories":[{"name":"Secondary POP","total_pos":19,"pos_visit":19,"pos_done":19,"materials":["PLACA DE CIGARRERA"]}],"dates":{"orig":["26-Dic","26-Dic","26-Dic","26-Dic"],"deadline":["30-Dic","30-Dic","30-Dic","30-Dic"],"new_deadline":[]}},{"name":"CROSS","colors":{"accent":"#5b7fa6","card":"#e4eaf3","dates":"#ccd5e3"},"categories":[{"name":"Secondary POP","total_pos":348,"pos_visit":23,"pos_done":23,"materials":["TABLE TENT","VIBRIN"]}],"dates":{"orig":["15/04/2026","15/04/2026","15/04/2026"],"deadline":["02/05/2026","02/05/2026","02/05/2026"],"new_deadline":[]}}];
+
+// ── DATE UTILS ──
+function parseDate(s) {
+  if (!s || s === 'TBD') return null;
+  // dd/mm/yyyy
+  let m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (m) return new Date(+m[3], +m[2]-1, +m[1]);
+  // dd-Mon (Spanish abbrev)
+  const months = {ene:0,feb:1,mar:2,abr:3,may:4,jun:5,jul:6,ago:7,sep:8,oct:9,nov:10,dic:11};
+  m = s.match(/^(\d{1,2})-([A-Za-z]+)$/);
+  if (m) {
+    const mo = months[m[2].toLowerCase()];
+    if (mo !== undefined) return new Date(2025, mo, +m[1]);
   }
-};
-
-function getCampaignColors(name) {
-  const n = name.toUpperCase();
-  if (n.includes('ECLIPSE') || n.includes('VIBRIN')) return {main:'#e85d45',cardBg:'#fde8e4',datesBg:'#fcd6d0'};
-  if (n.includes('VELO')) return {main:'#3ab4e0',cardBg:'#daf0fb',datesBg:'#b8e3f5'};
-  if (n.includes('VUSE')) return {main:'#7c4fcc',cardBg:'#ede4fc',datesBg:'#d9c8f7'};
-  return {main:'#5b7fa6',cardBg:'#e4eaf3',datesBg:'#ccd5e3'};
+  return null;
+}
+function fmtDate(d) {
+  if (!d) return '—';
+  return d.toLocaleDateString('es-PE', {day:'2-digit', month:'short', year:'numeric'});
+}
+function minDate(arr) {
+  const dates = arr.map(parseDate).filter(Boolean);
+  if (!dates.length) return null;
+  return new Date(Math.min(...dates));
+}
+function maxDate(arr) {
+  const dates = arr.map(parseDate).filter(Boolean);
+  if (!dates.length) return null;
+  return new Date(Math.max(...dates));
 }
 
-// Category order
-const CAT_ORDER = ['B2B Material','Primary POP','Secondary POP','Special Implementations'];
-
-function sortCats(cats) {
-  return Object.entries(cats).sort((a,b) => {
-    return (CAT_ORDER.indexOf(a[0]) === -1 ? 99 : CAT_ORDER.indexOf(a[0])) - 
-           (CAT_ORDER.indexOf(b[0]) === -1 ? 99 : CAT_ORDER.indexOf(b[0]));
-  });
+// ── DARKEN COLOR ──
+function darken(hex, amt) {
+  let c = parseInt(hex.slice(1),16);
+  let r = Math.max(0,(c>>16)-amt), g = Math.max(0,((c>>8)&0xff)-amt), b = Math.max(0,(c&0xff)-amt);
+  return '#'+[r,g,b].map(x=>x.toString(16).padStart(2,'0')).join('');
 }
 
+// ── CHARTS REGISTRY ──
 const chartInstances = {};
 
-function buildDonutCard(campaignName, catName, catData, viewMode, cardIdx) {
-  const colors = getCampaignColors(campaignName);
-  
-  // Compute values
-  let completed, reference, pending;
-  if (viewMode === 'prog') {
-    // Programación: POS_Visit / Total_POS
-    reference = catData.total_pos;
-    completed = catData.pos_visit;
-  } else {
-    // Efectividad: POS_Done / POS_Visit
-    reference = catData.pos_visit;
-    completed = catData.pos_done;
-  }
-  pending = Math.max(0, reference - completed);
-  const pct = reference > 0 ? Math.round(completed / reference * 100) : 0;
-
-  const canvasId = `chart_${campaignName.replace(/[^a-z0-9]/gi,'_')}_${catName.replace(/[^a-z0-9]/gi,'_')}_${viewMode}`;
-
-  const materialsHtml = catData.materials.map(m => `<span class="chip">${m}</span>`).join('');
-
-  return `
-    <div class="card" style="background:${colors.main};">
-      <div class="card-title">${catName}</div>
-      <div class="card-total">${reference.toLocaleString()} POS</div>
-      <div class="donut-wrap">
-        <canvas id="${canvasId}" width="100" height="100"></canvas>
-        <div class="donut-pct" id="pct_${canvasId}">${pct}%</div>
-      </div>
-      <div class="legend">
-        <div class="legend-item"><div class="legend-dot" style="background:rgba(255,255,255,0.25)"></div>Pending</div>
-        <div class="legend-item"><div class="legend-dot" style="background:rgba(255,255,255,0.92)"></div>Completed</div>
-      </div>
-      <div class="chip-list">${materialsHtml}</div>
-    </div>
-  `;
-}
-
-function buildDatesCard(campaignName, kickOff, projEnd) {
-  const colors = getCampaignColors(campaignName);
-  return `
-    <div class="card-dates" style="background:${colors.cardBg};">
-      <div class="card-title" style="color:${colors.main};font-size:12px;font-weight:900;text-align:center;">📅 Campaign Dates</div>
-      <div class="date-block" style="background:${colors.datesBg};">
-        <div class="date-label" style="color:${colors.main};">Kick off</div>
-        <div class="date-value" style="color:${colors.main};">${kickOff}</div>
-      </div>
-      <div class="date-block" style="background:${colors.datesBg};">
-        <div class="date-label" style="color:${colors.main};">Projected end</div>
-        <div class="date-value" style="color:${colors.main};">${projEnd}</div>
-      </div>
-    </div>
-  `;
-}
-
-function buildCampaignBlock(name, campaignData) {
-  const colors = getCampaignColors(name);
-  const sortedCats = sortCats(campaignData.categories);
-  const blockId = name.replace(/[^a-z0-9]/gi,'_');
-
-  let progCards = sortedCats.map(([catName, catData]) => buildDonutCard(name, catName, catData, 'prog', 0)).join('');
-  progCards += buildDatesCard(name, campaignData.kick_off, campaignData.proj_end);
-
-  let efecCards = sortedCats.map(([catName, catData]) => buildDonutCard(name, catName, catData, 'efec', 0)).join('');
-  efecCards += buildDatesCard(name, campaignData.kick_off, campaignData.proj_end);
-
-  return `
-    <div class="campaign-block">
-      <div class="campaign-title" style="color:${colors.main};">${name.toUpperCase()}</div>
-      <div class="tabs">
-        <button class="tab-btn active" 
-          style="border-color:${colors.main};background:${colors.main};color:#fff;"
-          onclick="switchTab('${blockId}','prog',this,'${colors.main}')">
-          Programación de visitas
-        </button>
-        <button class="tab-btn"
-          style="border-color:${colors.main};color:${colors.main};"
-          onclick="switchTab('${blockId}','efec',this,'${colors.main}')">
-          Efectividad de visitas
-        </button>
-      </div>
-      <div id="${blockId}_prog" class="tab-panel active">
-        <div class="cards-row">${progCards}</div>
-      </div>
-      <div id="${blockId}_efec" class="tab-panel">
-        <div class="cards-row">${efecCards}</div>
-      </div>
-    </div>
-  `;
-}
-
-function switchTab(blockId, view, btn, color) {
-  const panels = document.querySelectorAll(`[id^="${blockId}_"]`);
-  panels.forEach(p => p.classList.remove('active'));
-  document.getElementById(`${blockId}_${view}`).classList.add('active');
-
-  const tabs = btn.parentElement.querySelectorAll('.tab-btn');
-  tabs.forEach(t => {
-    t.classList.remove('active');
-    t.style.background = 'transparent';
-    t.style.color = color;
-  });
-  btn.classList.add('active');
-  btn.style.background = color;
-  btn.style.color = '#fff';
-
-  // Init charts in newly shown panel
-  setTimeout(() => initChartsInPanel(blockId, view), 50);
-}
-
-function initChart(canvasId, completed, reference) {
-  const canvas = document.getElementById(canvasId);
-  if (!canvas) return;
-  if (chartInstances[canvasId]) return; // already done
-
-  const pending = Math.max(0, reference - completed);
-  const ctx = canvas.getContext('2d');
-  const chart = new Chart(ctx, {
+function buildDonut(canvasId, pct, accent) {
+  if (chartInstances[canvasId]) { chartInstances[canvasId].destroy(); }
+  const ctx = document.getElementById(canvasId).getContext('2d');
+  chartInstances[canvasId] = new Chart(ctx, {
     type: 'doughnut',
     data: {
       datasets: [{
-        data: [pending, completed],
-        backgroundColor: ['rgba(255,255,255,0.25)', 'rgba(255,255,255,0.92)'],
+        data: [pct, 100 - pct],
+        backgroundColor: ['rgba(255,255,255,0.92)', 'rgba(255,255,255,0.25)'],
         borderWidth: 0,
-        hoverOffset: 0,
+        hoverOffset: 0
       }]
     },
     options: {
       responsive: false,
-      animation: {duration: 700},
       cutout: '72%',
-      plugins: {legend:{display:false}, tooltip:{enabled:false}},
+      animation: { duration: 600 },
+      plugins: { legend: { display: false }, tooltip: { enabled: false } }
     }
   });
-  chartInstances[canvasId] = chart;
 }
 
-function initChartsInPanel(blockId, view) {
-  Object.entries(DATA).forEach(([campName, campData]) => {
-    const bid = campName.replace(/[^a-z0-9]/gi,'_');
-    if (bid !== blockId && blockId !== '__ALL__') return;
-    sortCats(campData.categories).forEach(([catName, catData]) => {
-      ['prog','efec'].forEach(vm => {
-        if (blockId !== '__ALL__' && vm !== view) return;
-        const canvasId = `chart_${campName.replace(/[^a-z0-9]/gi,'_')}_${catName.replace(/[^a-z0-9]/gi,'_')}_${vm}`;
-        let completed, reference;
-        if (vm === 'prog') {
-          reference = catData.total_pos;
-          completed = catData.pos_visit;
-        } else {
-          reference = catData.pos_visit;
-          completed = catData.pos_done;
-        }
-        initChart(canvasId, completed, reference);
-      });
-    });
+// ── RENDER VIEW (prog or efectividad) ──
+function renderView(campaign, viewType) {
+  const { colors, categories, dates } = campaign;
+  const cid = campaign.name.replace(/[^a-z0-9]/gi,'_');
+
+  // Compute dates
+  const kickoff = minDate(dates.orig);
+  const projEnd = maxDate([...dates.deadline, ...dates.new_deadline]);
+
+  let html = `<div class="cards-row" id="cards_${cid}_${viewType}">`;
+
+  categories.forEach((cat, ci) => {
+    const refVal = viewType === 'prog' ? cat.total_pos : cat.pos_visit;
+    const doneVal = viewType === 'prog' ? cat.pos_visit : cat.pos_done;
+    const pct = refVal > 0 ? Math.round(doneVal / refVal * 100) : 0;
+    const pending = 100 - pct;
+    const posLabel = viewType === 'prog' ? `Total POS: ${cat.total_pos.toLocaleString()}` : `POS Visit: ${cat.pos_visit.toLocaleString()}`;
+    const canvasId = `chart_${cid}_${viewType}_${ci}`;
+
+    html += `
+    <div class="pop-card" style="background:${colors.accent}">
+      <div class="pop-card-title">${cat.name}</div>
+      <div class="pop-card-pos">${posLabel}</div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <div class="donut-container">
+          <canvas id="${canvasId}" width="100" height="100"></canvas>
+          <div class="donut-pct">${pct}%</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div class="legend">
+            <div class="legend-item">
+              <div class="legend-dot" style="background:rgba(255,255,255,0.92)"></div>Completed
+            </div>
+            <div class="legend-item">
+              <div class="legend-dot" style="background:rgba(255,255,255,0.25)"></div>Pending
+            </div>
+          </div>
+          <div class="chips">
+            ${cat.materials.map(m => `<span class="chip">${m}</span>`).join('')}
+          </div>
+        </div>
+      </div>
+    </div>`;
   });
+
+  // Dates card
+  html += `
+    <div class="dates-card" style="background:${colors.card}">
+      <div class="dates-card-title">📅 Campaign Dates</div>
+      <div class="dates-section" style="background:${colors.dates}">
+        <div class="dates-label">Kick off</div>
+        <div class="dates-value">${fmtDate(kickoff)}</div>
+      </div>
+      <div class="dates-section" style="background:${colors.dates}">
+        <div class="dates-label">Projected end</div>
+        <div class="dates-value">${fmtDate(projEnd)}</div>
+      </div>
+    </div>
+  </div>`;
+
+  return html;
 }
 
-// Build DOM
+// ── SWITCH TAB ──
+function switchTab(campName, viewType) {
+  const cid = campName.replace(/[^a-z0-9]/gi,'_');
+  const camp = DATA.find(c => c.name === campName);
+  const accent = camp.colors.accent;
+
+  // Update tab styles
+  ['prog','ef'].forEach(vt => {
+    const tab = document.getElementById(`tab_${cid}_${vt}`);
+    if (vt === viewType) {
+      tab.classList.remove('inactive');
+      tab.classList.add('active');
+      tab.style.backgroundColor = accent;
+      tab.style.borderColor = accent;
+      tab.style.color = '#fff';
+    } else {
+      tab.classList.remove('active');
+      tab.classList.add('inactive');
+      tab.style.backgroundColor = 'transparent';
+      tab.style.borderColor = accent;
+      tab.style.color = accent;
+    }
+  });
+
+  // Show/hide panels
+  ['prog','ef'].forEach(vt => {
+    const panel = document.getElementById(`panel_${cid}_${vt}`);
+    panel.classList.toggle('active', vt === viewType);
+  });
+
+  // Build charts for active view
+  setTimeout(() => {
+    const { categories } = camp;
+    categories.forEach((cat, ci) => {
+      const refVal = viewType === 'prog' ? cat.total_pos : cat.pos_visit;
+      const doneVal = viewType === 'prog' ? cat.pos_visit : cat.pos_done;
+      const pct = refVal > 0 ? Math.round(doneVal / refVal * 100) : 0;
+      const canvasId = `chart_${cid}_${viewType}_${ci}`;
+      buildDonut(canvasId, pct, accent);
+    });
+  }, 20);
+}
+
+// ── BUILD ALL CAMPAIGNS ──
 const app = document.getElementById('app');
-Object.entries(DATA).forEach(([name, campData]) => {
-  app.innerHTML += buildCampaignBlock(name, campData);
+
+DATA.forEach(camp => {
+  const cid = camp.name.replace(/[^a-z0-9]/gi,'_');
+  const { colors } = camp;
+
+  const progHTML = renderView(camp, 'prog');
+  const efHTML   = renderView(camp, 'ef');
+
+  const block = document.createElement('div');
+  block.className = 'campaign';
+  block.innerHTML = `
+    <div class="campaign-header">
+      <div class="campaign-dot" style="background:${colors.accent}"></div>
+      <div class="campaign-title">${camp.name}</div>
+    </div>
+    <div class="tabs">
+      <div id="tab_${cid}_prog" class="tab active"
+           style="background:${colors.accent};border-color:${colors.accent};color:#fff"
+           onclick="switchTab('${camp.name}','prog')">
+        Programación de visitas
+      </div>
+      <div id="tab_${cid}_ef" class="tab inactive"
+           style="border-color:${colors.accent};color:${colors.accent}"
+           onclick="switchTab('${camp.name}','ef')">
+        Efectividad de visitas
+      </div>
+    </div>
+    <div id="panel_${cid}_prog" class="view-panel active">${progHTML}</div>
+    <div id="panel_${cid}_ef"   class="view-panel">${efHTML}</div>
+  `;
+  app.appendChild(block);
 });
 
-// Init charts for all initially visible panels
-setTimeout(() => {
-  Object.keys(DATA).forEach(name => {
-    const blockId = name.replace(/[^a-z0-9]/gi,'_');
-    initChartsInPanel(blockId, 'prog');
+// ── INIT CHARTS for default visible (prog) tabs ──
+window.addEventListener('load', () => {
+  DATA.forEach(camp => {
+    const cid = camp.name.replace(/[^a-z0-9]/gi,'_');
+    camp.categories.forEach((cat, ci) => {
+      const pct = cat.total_pos > 0 ? Math.round(cat.pos_visit / cat.total_pos * 100) : 0;
+      buildDonut(`chart_${cid}_prog_${ci}`, pct, camp.colors.accent);
+    });
   });
-}, 100);
+});
 </script>
 </body>
 </html>

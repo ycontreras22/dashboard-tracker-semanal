@@ -3,204 +3,468 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tracker Semanal — Campañas POP</title>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<title>Tracker Semanal</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Nunito', sans-serif; background: #f0f0f0; min-height: 100vh; padding: 24px; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Nunito', sans-serif; background: #f0f0f0; padding: 24px 16px 48px; }
+  h1 { text-align: center; font-size: 1.5rem; font-weight: 900; color: #333; margin-bottom: 28px; letter-spacing: -0.3px; }
 
-h1 { text-align: center; font-size: 22px; font-weight: 800; color: #333; margin-bottom: 24px; letter-spacing: -0.3px; }
+  /* ── Campaign Block ── */
+  .campaign-block { margin-bottom: 36px; }
+  .campaign-title {
+    font-size: 1.05rem; font-weight: 900; margin-bottom: 10px;
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
 
-/* ── CAMPAIGN BLOCK ── */
-.campaign { margin-bottom: 28px; }
-.campaign-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
-.campaign-title { font-size: 17px; font-weight: 800; color: #222; }
-.campaign-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+  /* ── Tabs ── */
+  .tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+  .tab-btn {
+    padding: 6px 18px; border-radius: 20px; border: 2px solid; cursor: pointer;
+    font-family: 'Nunito', sans-serif; font-size: 0.78rem; font-weight: 800;
+    transition: background 0.18s, color 0.18s;
+  }
+  .tab-btn.active { color: #fff; }
 
-/* ── TABS ── */
-.tabs { display: flex; gap: 6px; margin-bottom: 14px; }
-.tab {
-  padding: 7px 18px;
-  border-radius: 20px;
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-  border: 2px solid transparent;
-  transition: all 0.18s;
-  user-select: none;
-}
-.tab.inactive { background: transparent; }
-.tab.active { color: #fff; }
+  /* ── Cards Row ── */
+  .cards-row {
+    display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-start;
+  }
 
-/* ── CARDS ROW ── */
-.cards-row {
-  display: flex;
-  gap: 14px;
-  flex-wrap: wrap;
-  align-items: flex-start;
-}
+  /* ── Donut Card ── */
+  .donut-card {
+    border-radius: 18px; padding: 16px 18px 14px;
+    min-width: 178px; max-width: 210px;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .card-title {
+    font-size: 0.72rem; font-weight: 800; color: rgba(255,255,255,0.95);
+    text-transform: uppercase; letter-spacing: 0.4px; line-height: 1.3;
+  }
+  .donut-wrap {
+    position: relative; width: 100px; height: 100px; flex-shrink: 0; margin: 0 auto;
+  }
+  .donut-wrap canvas { width: 100px !important; height: 100px !important; }
+  .donut-pct {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 17px; font-weight: 900; color: #fff;
+    pointer-events: none; white-space: nowrap;
+  }
+  .legend {
+    display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;
+  }
+  .legend-item {
+    display: flex; align-items: center; gap: 4px;
+    font-size: 0.68rem; font-weight: 700; color: rgba(255,255,255,0.9);
+  }
+  .legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .materials-list {
+    display: flex; flex-wrap: wrap; gap: 5px;
+  }
+  .mat-chip {
+    background: rgba(255,255,255,0.22); color: rgba(255,255,255,0.95);
+    border-radius: 8px; padding: 2px 8px; font-size: 0.62rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.2px;
+  }
 
-/* ── POP CARD ── */
-.pop-card {
-  border-radius: 18px;
-  padding: 16px;
-  min-width: 185px;
-  flex: 1;
-  max-width: 260px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-.pop-card-title {
-  font-size: 12px;
-  font-weight: 800;
-  color: #fff;
-  letter-spacing: 0.2px;
-  line-height: 1.3;
-}
-.pop-card-pos {
-  font-size: 11px;
-  color: rgba(255,255,255,0.75);
-  margin-top: -6px;
-  font-weight: 600;
-}
+  /* ── Dates Card ── */
+  .dates-card {
+    border-radius: 18px; padding: 16px 16px 14px;
+    width: 145px; flex-shrink: 0; display: flex; flex-direction: column; gap: 10px;
+  }
+  .dates-card-title {
+    font-size: 0.72rem; font-weight: 800; color: #555;
+    text-transform: uppercase; letter-spacing: 0.4px;
+  }
+  .date-item { border-radius: 10px; padding: 8px 10px; }
+  .date-label { font-size: 0.6rem; font-weight: 800; color: #777; text-transform: uppercase; letter-spacing: 0.3px; }
+  .date-value { font-size: 0.78rem; font-weight: 900; color: #444; margin-top: 2px; }
 
-/* ── DONUT WRAP ── */
-.donut-container {
-  position: relative;
-  width: 100px;
-  height: 100px;
-  flex-shrink: 0;
-  align-self: center;
-}
-.donut-pct {
-  position: absolute;
-  top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 17px;
-  font-weight: 900;
-  color: #fff;
-  pointer-events: none;
-  white-space: nowrap;
-}
-
-/* ── LEGEND ── */
-.legend { display: flex; gap: 10px; flex-wrap: wrap; }
-.legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: rgba(255,255,255,0.85); font-weight: 600; }
-.legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-
-/* ── MATERIAL CHIPS ── */
-.chips { display: flex; flex-wrap: wrap; gap: 5px; }
-.chip {
-  background: rgba(255,255,255,0.22);
-  color: #fff;
-  font-size: 10px;
-  font-weight: 700;
-  padding: 3px 9px;
-  border-radius: 20px;
-  letter-spacing: 0.1px;
-}
-
-/* ── DATES CARD ── */
-.dates-card {
-  border-radius: 18px;
-  padding: 16px;
-  width: 145px;
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-.dates-card-title {
-  font-size: 12px;
-  font-weight: 800;
-  color: #333;
-  letter-spacing: 0.2px;
-}
-.dates-section {
-  border-radius: 10px;
-  padding: 8px 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
-.dates-label {
-  font-size: 10px;
-  font-weight: 700;
-  color: #555;
-  text-transform: uppercase;
-  letter-spacing: 0.4px;
-}
-.dates-value {
-  font-size: 12px;
-  font-weight: 800;
-  color: #222;
-  word-break: break-word;
-}
-
-/* ── VIEW PANEL ── */
-.view-panel { display: none; }
-.view-panel.active { display: block; }
+  /* ── View Pane ── */
+  .view-pane { display: none; }
+  .view-pane.active { display: block; }
 </style>
 </head>
 <body>
-
-<h1>Tracker Semanal</h1>
-<div id="app"></div>
+<h1>📊 TRACKER SEMANAL</h1>
 
 <script>
-const DATA = [{"name":"LS Eclipse","colors":{"accent":"#e85d45","card":"#fde8e4","dates":"#fcd6d0"},"categories":[{"name":"B2B Material","total_pos":1943,"pos_visit":1943,"pos_done":1943,"materials":["ABANICO","FLYER B2B","HOJA CATÁLOGO"]},{"name":"Primary POP","total_pos":2874,"pos_visit":2869,"pos_done":1670,"materials":["PLACA DE CIGARRERA"]},{"name":"Secondary POP","total_pos":16629,"pos_visit":16629,"pos_done":16611,"materials":["ACOPLES","CORREAS MARCA PRECIO","GLORIFICADORES","JALAVISTA","STICKER DE FRÍO","TABLE TENT","VIBRIN"]}],"dates":{"orig":["26/11/2025","03/12/2025","03/12/2025","02/12/2025","02/12/2025","28/11/2025","02/12/2025","02/12/2025","02/12/2025","25/11/2025","28/11/2025","28/11/2025","25/11/2025","28/11/2025","28/11/2025","02/12/2025","28/11/2025","28/11/2025","20/11/2025","03/12/2025","27/11/2025","02/01/2026","02/01/2026","19/11/2025","03/12/2025","16/11/2025","27/11/2025","04/12/2025","04/12/2025","04/12/2025","04/12/2025","04/12/2025","27/11/2025","10/12/2025","10/12/2025","10/12/2025","19/11/2025","03/12/2025","03/12/2025","20/01/2026","20/01/2026","20/01/2026","27/11/2025","27/11/2025","04/12/2025","04/01/2026","04/01/2026","27/11/2025","27/11/2025","27/11/2025","02/12/2025","03/01/2026","03/01/2026","02/12/2025","02/12/2025","02/12/2025"],"deadline":["17/12/2025","30/12/2025","30/12/2025","02/12/2025","02/12/2025","28/11/2025","02/12/2025","02/12/2025","02/12/2025","25/11/2025","28/11/2025","28/11/2025","25/11/2025","28/11/2025","28/11/2025","02/12/2025","02/12/2025","02/12/2025","27/11/2025","10/12/2025","16/12/2025","09/01/2026","09/01/2026","04/12/2025","10/12/2025","01/12/2025","05/12/2025","10/12/2025","10/12/2025","22/12/2025","22/12/2025","22/12/2025","16/12/2025","12/12/2025","12/12/2025","12/12/2025","04/12/2025","10/12/2025","10/12/2025","06/02/2026","06/02/2026","06/02/2026","16/12/2025","05/12/2025","05/01/2026","16/12/2025","10/01/2026","10/01/2026","10/01/2026","10/12/2025","10/12/2025","10/12/2025"],"new_deadline":["09/01/2025","12/01/2025","12/01/2025","12/01/2025","23/03/2026","23/03/2026","23/03/2026"]}},{"name":"LS Core","colors":{"accent":"#5b7fa6","card":"#e4eaf3","dates":"#ccd5e3"},"categories":[{"name":"Secondary POP","total_pos":266,"pos_visit":257,"pos_done":252,"materials":["CAVA","STICKER COUNTER","TABLE TENT","VIBRIN"]}],"dates":{"orig":["06/03/2026","11/03/2026","11/03/2026","08/01/2026","06/03/2026","11/03/2026","11/03/2026","01/04/2026","01/04/2026","01/04/2026"],"deadline":["20/03/2026","27/03/2026","20/03/2026","25/01/2026","20/03/2026","20/03/2026","19/03/2026","18/04/2026","18/04/2026","18/04/2026"],"new_deadline":["27/01/2026","27/01/2026","27/01/2026"]}},{"name":"Velo Ocassions","colors":{"accent":"#3ab4e0","card":"#daf0fb","dates":"#b8e3f5"},"categories":[{"name":"Primary POP","total_pos":559,"pos_visit":559,"pos_done":557,"materials":["PLACA DE CIGARRERA"]},{"name":"Secondary POP","total_pos":1610,"pos_visit":1610,"pos_done":1595,"materials":["DISPENSER VELO/VUSE","FLAP","FLYER","MANTELETA","PLACA DISPENSER","TRIPTICO"]}],"dates":{"orig":["25/11/2025","28/11/2025","01/12/2025","01/12/2025","01/12/2025","01/12/2025","25/11/2025","28/11/2025","01/12/2025","01/12/2025","01/12/2025","01/12/2025","27/11/2025","10/12/2025","01/12/2025","01/12/2025","01/12/2025","01/12/2025","25/11/2025","28/11/2025","28/11/2025","28/11/2025","01/12/2025","01/12/2025","01/12/2025","10/12/2025","23/12/2025","23/12/2025","01/12/2025","01/12/2025","01/12/2025","25/11/2025","28/11/2025","01/12/2025","01/12/2025","25/11/2025"],"deadline":["05/12/2025","03/12/2025","18/12/2025","18/12/2025","18/12/2025","18/12/2025","05/12/2025","03/12/2025","18/12/2025","18/12/2025","18/12/2025","18/12/2025","12/12/2025","12/12/2025","18/12/2025","18/12/2025","18/12/2025","18/12/2025","05/12/2025","08/12/2025","03/12/2025","03/12/2025","18/12/2025","18/12/2025","18/12/2025","27/12/2025","09/01/2026","09/01/2026","18/12/2025","18/12/2025","18/12/2025","30/01/2026","22/01/2026","18/12/2025","18/12/2025","05/12/2025"],"new_deadline":[]}},{"name":"Velo Bodegas","colors":{"accent":"#3ab4e0","card":"#daf0fb","dates":"#b8e3f5"},"categories":[{"name":"Primary POP","total_pos":44,"pos_visit":44,"pos_done":43,"materials":["PLACA DE CIGARRERA"]},{"name":"Secondary POP","total_pos":410,"pos_visit":410,"pos_done":369,"materials":["JALAVISTAS","MÁSCARA","TABLE TENT"]}],"dates":{"orig":["03/02/2026","03/02/2026","03/02/2026","03/02/2026"],"deadline":["10/02/2026","10/02/2026","10/02/2026","10/02/2026"],"new_deadline":[]}},{"name":"Vuse 3K","colors":{"accent":"#7c4fcc","card":"#ede4fc","dates":"#d9c8f7"},"categories":[{"name":"Primary POP","total_pos":561,"pos_visit":561,"pos_done":559,"materials":["PLACA DE CIGARRERA"]},{"name":"Secondary POP","total_pos":1875,"pos_visit":1751,"pos_done":1646,"materials":["DIPTICO","DISPENSER VUSE/VUSE","PLACA DE DISPENSER","PLACA FACING","TABLE TENT"]}],"dates":{"orig":["22/01/2026","22/01/2026","22/01/2026","26/01/2026","26/01/2026","26/01/2026","11/03/2026","13/01/2026","12/01/2026","12/01/2026","12/01/2026","12/01/2026","22/01/2026","22/01/2026","11/03/2026","11/03/2026"],"deadline":["09/02/2026","09/02/2026","09/02/2026","12/02/2026","12/02/2026","12/02/2026","12/03/2026","26/01/2026","28/01/2026","28/01/2026","28/01/2026","28/01/2026","24/01/2026","24/01/2026","17/03/2026","17/03/2026"],"new_deadline":["30/03/2026","30/03/2026","30/03/2026","15/04/2026","11/02/2026","11/02/2026","11/02/2026","11/02/2026","11/02/2026","23/03/2026"]}},{"name":"Vuse 3K - Nuevo legal","colors":{"accent":"#7c4fcc","card":"#ede4fc","dates":"#d9c8f7"},"categories":[{"name":"Primary POP","total_pos":606,"pos_visit":445,"pos_done":439,"materials":["PLACA DE CIGARRERA"]},{"name":"Secondary POP","total_pos":507,"pos_visit":112,"pos_done":97,"materials":["FRANJA VUSE - D. MULTICATEGORÍA","STICKER VUSE - D. MULTICATEGORÍA"]}],"dates":{"orig":["24/03/2026","06/04/2026","24/03/2026","06/04/2026"],"deadline":["14/04/2026","27/04/2026","14/04/2026","27/04/2026"],"new_deadline":[]}},{"name":"Vuse","colors":{"accent":"#7c4fcc","card":"#ede4fc","dates":"#d9c8f7"},"categories":[{"name":"Secondary POP","total_pos":1759,"pos_visit":1759,"pos_done":1722,"materials":["CENEFAS COUNTER","ESQUINERO","HEADER","MENUBOARD"]}],"dates":{"orig":["06/03/2026","11/03/2026","11/03/2026","22/01/2026","22/01/2026","22/01/2026","18/02/2026","18/02/2026","18/02/2026","18/02/2026","18/02/2026","18/02/2026","20/02/2026","20/02/2026","20/02/2026"],"deadline":["20/03/2026","20/03/2026","19/03/2026","09/02/2026","09/02/2026","24/01/2026","07/03/2026","07/03/2026","07/03/2026","07/03/2026","07/03/2026","07/03/2026","07/03/2026","07/03/2026","07/03/2026"],"new_deadline":["30/03/2026","30/03/2026","11/02/2026","24/03/2026","24/03/2026","24/03/2026","24/03/2026","24/03/2026","24/03/2026","16/03/2026","16/03/2026","16/03/2026"]}},{"name":"VELO 8MG","colors":{"accent":"#3ab4e0","card":"#daf0fb","dates":"#b8e3f5"},"categories":[{"name":"Secondary POP","total_pos":2387,"pos_visit":913,"pos_done":837,"materials":["DIPTICO","FLAP VELO - D. MULTICATEGORÍA","FRANJA VELO - D. MULTICATEGORÍA","MENUBOARD","PARED VELO - D. MULTICATEGORÍA","PLACA FACING","PLACA NICHO","REEL VELO 8MG"]}],"dates":{"orig":["06/04/2026","06/04/2026","23/03/2026","23/03/2026","06/04/2026","06/04/2026","23/03/2026","23/03/2026","06/04/2026","06/04/2026","06/04/2026","06/04/2026","06/04/2026","06/04/2026","23/03/2026","23/03/2026","06/04/2026","06/04/2026","06/04/2026","06/04/2026","06/04/2026","23/03/2026","23/03/2026","06/04/2026","06/04/2026","06/04/2026","06/04/2026","06/04/2026"],"deadline":["27/04/2026","27/04/2026","09/04/2026","09/04/2026","27/04/2026","27/04/2026","09/04/2026","09/04/2026","27/04/2026","27/04/2026","27/04/2026","27/04/2026","27/04/2026","27/04/2026","09/04/2026","09/04/2026","27/04/2026","27/04/2026","27/04/2026","27/04/2026","27/04/2026","09/04/2026","09/04/2026","27/04/2026","27/04/2026","27/04/2026","27/04/2026","27/04/2026"],"new_deadline":[]}},{"name":"Velo semáforo","colors":{"accent":"#3ab4e0","card":"#daf0fb","dates":"#b8e3f5"},"categories":[{"name":"Secondary POP","total_pos":19,"pos_visit":19,"pos_done":19,"materials":["PLACA DE CIGARRERA"]}],"dates":{"orig":["26-Dic","26-Dic","26-Dic","26-Dic"],"deadline":["30-Dic","30-Dic","30-Dic","30-Dic"],"new_deadline":[]}},{"name":"CROSS","colors":{"accent":"#5b7fa6","card":"#e4eaf3","dates":"#ccd5e3"},"categories":[{"name":"Secondary POP","total_pos":348,"pos_visit":23,"pos_done":23,"materials":["TABLE TENT","VIBRIN"]}],"dates":{"orig":["15/04/2026","15/04/2026","15/04/2026"],"deadline":["02/05/2026","02/05/2026","02/05/2026"],"new_deadline":[]}}];
+// ── RAW DATA ──────────────────────────────────────────────────────────────────
+const RAW = {
+  "CROSS": [
+    {"material":"TABLE TENT","ps":"SECONDARY","category":"Secondary POP","total_pos":27,"pos_visit":27,"pos_done":27,"init_date":"2026-04-15","deadline":"2026-05-02","new_deadline":null},
+    {"material":"TABLE TENT","ps":"SECONDARY","category":"Secondary POP","total_pos":3,"pos_visit":3,"pos_done":3,"init_date":"2026-04-20","deadline":"2026-05-02","new_deadline":null},
+    {"material":"TABLE TENT","ps":"SECONDARY","category":"Secondary POP","total_pos":1,"pos_visit":1,"pos_done":1,"init_date":"2026-04-20","deadline":"2026-05-02","new_deadline":null},
+    {"material":"VIBRIN","ps":"SECONDARY","category":"Secondary POP","total_pos":62,"pos_visit":62,"pos_done":62,"init_date":"2026-04-15","deadline":"2026-05-02","new_deadline":null},
+    {"material":"VIBRIN","ps":"SECONDARY","category":"Secondary POP","total_pos":7,"pos_visit":7,"pos_done":7,"init_date":"2026-04-20","deadline":"2026-05-02","new_deadline":null},
+    {"material":"TABLE TENT","ps":"SECONDARY","category":"Secondary POP","total_pos":248,"pos_visit":248,"pos_done":245,"init_date":"2026-04-15","deadline":"2026-05-02","new_deadline":null}
+  ],
+  "VELO 8MG": [
+    {"material":"FRANJA VELO - D. MULTICATEGORÍA","ps":"SECONDARY","category":"Secondary POP","total_pos":6,"pos_visit":4,"pos_done":4,"init_date":"2026-04-20","deadline":"2026-05-05","new_deadline":null},
+    {"material":"PARED VELO - D. MULTICATEGORÍA","ps":"SECONDARY","category":"Secondary POP","total_pos":6,"pos_visit":4,"pos_done":4,"init_date":"2026-04-20","deadline":"2026-05-05","new_deadline":null},
+    {"material":"FRANJA VELO - D. MULTICATEGORÍA","ps":"SECONDARY","category":"Secondary POP","total_pos":10,"pos_visit":9,"pos_done":8,"init_date":"2026-04-06","deadline":"2026-04-27","new_deadline":null},
+    {"material":"PARED VELO - D. MULTICATEGORÍA","ps":"SECONDARY","category":"Secondary POP","total_pos":10,"pos_visit":9,"pos_done":8,"init_date":"2026-04-06","deadline":"2026-04-27","new_deadline":null},
+    {"material":"DIPTICO","ps":"B2B","category":"B2B Material","total_pos":7,"pos_visit":7,"pos_done":7,"init_date":"2026-03-23","deadline":"2026-04-09","new_deadline":"2026-04-26"},
+    {"material":"MENUBOARD","ps":"B2B","category":"B2B Material","total_pos":7,"pos_visit":7,"pos_done":7,"init_date":"2026-03-23","deadline":"2026-04-09","new_deadline":"2026-04-26"},
+    {"material":"FRANJA VELO - D. MULTICATEGORÍA","ps":"SECONDARY","category":"Secondary POP","total_pos":19,"pos_visit":7,"pos_done":7,"init_date":"2026-04-20","deadline":"2026-05-05","new_deadline":null},
+    {"material":"PARED VELO - D. MULTICATEGORÍA","ps":"SECONDARY","category":"Secondary POP","total_pos":19,"pos_visit":7,"pos_done":7,"init_date":"2026-04-20","deadline":"2026-05-05","new_deadline":null},
+    {"material":"FRANJA VELO - D. MULTICATEGORÍA","ps":"SECONDARY","category":"Secondary POP","total_pos":191,"pos_visit":179,"pos_done":173,"init_date":"2026-04-06","deadline":"2026-04-27","new_deadline":null},
+    {"material":"PARED VELO - D. MULTICATEGORÍA","ps":"SECONDARY","category":"Secondary POP","total_pos":191,"pos_visit":179,"pos_done":173,"init_date":"2026-04-06","deadline":"2026-04-27","new_deadline":null},
+    {"material":"FRANJA VELO - D. MULTICATEGORÍA","ps":"SECONDARY","category":"Secondary POP","total_pos":3,"pos_visit":3,"pos_done":3,"init_date":"2026-04-20","deadline":"2026-05-05","new_deadline":null},
+    {"material":"PARED VELO - D. MULTICATEGORÍA","ps":"SECONDARY","category":"Secondary POP","total_pos":3,"pos_visit":3,"pos_done":3,"init_date":"2026-04-20","deadline":"2026-05-05","new_deadline":null},
+    {"material":"DIPTICO","ps":"B2B","category":"B2B Material","total_pos":68,"pos_visit":68,"pos_done":67,"init_date":"2026-03-23","deadline":"2026-04-09","new_deadline":"2026-04-26"},
+    {"material":"MENUBOARD","ps":"B2B","category":"B2B Material","total_pos":68,"pos_visit":68,"pos_done":67,"init_date":"2026-03-23","deadline":"2026-04-09","new_deadline":"2026-04-26"},
+    {"material":"PLACA FACING","ps":"PRIMARY","category":"Primary POP","total_pos":33,"pos_visit":22,"pos_done":22,"init_date":"2026-04-20","deadline":"2026-05-05","new_deadline":null},
+    {"material":"PLACA NICHO","ps":"PRIMARY","category":"Primary POP","total_pos":6,"pos_visit":5,"pos_done":5,"init_date":"2026-04-20","deadline":"2026-05-05","new_deadline":null},
+    {"material":"REEL VELO 8MG","ps":"PRIMARY","category":"Primary POP","total_pos":19,"pos_visit":14,"pos_done":14,"init_date":"2026-04-20","deadline":"2026-05-05","new_deadline":null},
+    {"material":"PLACA FACING","ps":"PRIMARY","category":"Primary POP","total_pos":100,"pos_visit":84,"pos_done":70,"init_date":"2026-04-06","deadline":"2026-04-27","new_deadline":null},
+    {"material":"PLACA NICHO","ps":"PRIMARY","category":"Primary POP","total_pos":27,"pos_visit":26,"pos_done":21,"init_date":"2026-04-06","deadline":"2026-04-27","new_deadline":null},
+    {"material":"REEL VELO 8MG","ps":"PRIMARY","category":"Primary POP","total_pos":56,"pos_visit":52,"pos_done":47,"init_date":"2026-04-06","deadline":"2026-04-27","new_deadline":null},
+    {"material":"FLAP VELO - D. MULTICATEGORÍA","ps":"SECONDARY","category":"Secondary POP","total_pos":39,"pos_visit":29,"pos_done":29,"init_date":"2026-04-20","deadline":"2026-05-05","new_deadline":null},
+    {"material":"FRANJA VELO - D. MULTICATEGORÍA","ps":"SECONDARY","category":"Secondary POP","total_pos":39,"pos_visit":29,"pos_done":29,"init_date":"2026-04-20","deadline":"2026-05-05","new_deadline":null},
+    {"material":"PARED VELO - D. MULTICATEGORÍA","ps":"SECONDARY","category":"Secondary POP","total_pos":39,"pos_visit":29,"pos_done":29,"init_date":"2026-04-20","deadline":"2026-05-05","new_deadline":null},
+    {"material":"FLAP VELO - D. MULTICATEGORÍA","ps":"SECONDARY","category":"Secondary POP","total_pos":113,"pos_visit":97,"pos_done":91,"init_date":"2026-04-06","deadline":"2026-04-27","new_deadline":null},
+    {"material":"FRANJA VELO - D. MULTICATEGORÍA","ps":"SECONDARY","category":"Secondary POP","total_pos":113,"pos_visit":97,"pos_done":91,"init_date":"2026-04-06","deadline":"2026-04-27","new_deadline":null},
+    {"material":"PARED VELO - D. MULTICATEGORÍA","ps":"SECONDARY","category":"Secondary POP","total_pos":113,"pos_visit":97,"pos_done":91,"init_date":"2026-04-06","deadline":"2026-04-27","new_deadline":null},
+    {"material":"DIPTICO","ps":"B2B","category":"B2B Material","total_pos":42,"pos_visit":42,"pos_done":42,"init_date":"2026-03-23","deadline":"2026-04-09","new_deadline":"2026-04-26"},
+    {"material":"MENUBOARD","ps":"B2B","category":"B2B Material","total_pos":42,"pos_visit":42,"pos_done":42,"init_date":"2026-03-23","deadline":"2026-04-09","new_deadline":"2026-04-26"},
+    {"material":"PLACA FACING","ps":"PRIMARY","category":"Primary POP","total_pos":4,"pos_visit":3,"pos_done":3,"init_date":"2026-04-20","deadline":"2026-05-05","new_deadline":null},
+    {"material":"REEL VELO 8MG","ps":"PRIMARY","category":"Primary POP","total_pos":2,"pos_visit":2,"pos_done":2,"init_date":"2026-04-20","deadline":"2026-05-05","new_deadline":null},
+    {"material":"PLACA FACING","ps":"PRIMARY","category":"Primary POP","total_pos":32,"pos_visit":29,"pos_done":24,"init_date":"2026-04-06","deadline":"2026-04-27","new_deadline":null},
+    {"material":"PLACA NICHO","ps":"PRIMARY","category":"Primary POP","total_pos":1,"pos_visit":1,"pos_done":1,"init_date":"2026-04-06","deadline":"2026-04-27","new_deadline":null},
+    {"material":"REEL VELO 8MG","ps":"PRIMARY","category":"Primary POP","total_pos":34,"pos_visit":30,"pos_done":26,"init_date":"2026-04-06","deadline":"2026-04-27","new_deadline":null},
+    {"material":"FRANJA VELO - D. MULTICATEGORÍA","ps":"SECONDARY","category":"Secondary POP","total_pos":4,"pos_visit":3,"pos_done":3,"init_date":"2026-04-20","deadline":"2026-05-05","new_deadline":null},
+    {"material":"PARED VELO - D. MULTICATEGORÍA","ps":"SECONDARY","category":"Secondary POP","total_pos":4,"pos_visit":3,"pos_done":3,"init_date":"2026-04-20","deadline":"2026-05-05","new_deadline":null},
+    {"material":"FRANJA VELO - D. MULTICATEGORÍA","ps":"SECONDARY","category":"Secondary POP","total_pos":41,"pos_visit":39,"pos_done":37,"init_date":"2026-04-06","deadline":"2026-04-27","new_deadline":null},
+    {"material":"PARED VELO - D. MULTICATEGORÍA","ps":"SECONDARY","category":"Secondary POP","total_pos":41,"pos_visit":39,"pos_done":37,"init_date":"2026-04-06","deadline":"2026-04-27","new_deadline":null},
+    {"material":"DIPTICO","ps":"B2B","category":"B2B Material","total_pos":24,"pos_visit":24,"pos_done":24,"init_date":"2026-03-23","deadline":"2026-04-09","new_deadline":"2026-04-26"},
+    {"material":"MENUBOARD","ps":"B2B","category":"B2B Material","total_pos":24,"pos_visit":24,"pos_done":24,"init_date":"2026-03-23","deadline":"2026-04-09","new_deadline":"2026-04-26"},
+    {"material":"FRANJA VELO - D. MULTICATEGORÍA","ps":"SECONDARY","category":"Secondary POP","total_pos":5,"pos_visit":5,"pos_done":5,"init_date":"2026-04-20","deadline":"2026-05-05","new_deadline":null},
+    {"material":"PARED VELO - D. MULTICATEGORÍA","ps":"SECONDARY","category":"Secondary POP","total_pos":5,"pos_visit":5,"pos_done":5,"init_date":"2026-04-20","deadline":"2026-05-05","new_deadline":null},
+    {"material":"FRANJA VELO - D. MULTICATEGORÍA","ps":"SECONDARY","category":"Secondary POP","total_pos":348,"pos_visit":314,"pos_done":303,"init_date":"2026-04-06","deadline":"2026-04-27","new_deadline":null},
+    {"material":"PARED VELO - D. MULTICATEGORÍA","ps":"SECONDARY","category":"Secondary POP","total_pos":348,"pos_visit":314,"pos_done":303,"init_date":"2026-04-06","deadline":"2026-04-27","new_deadline":null},
+    {"material":"PLACA FACING","ps":"PRIMARY","category":"Primary POP","total_pos":34,"pos_visit":29,"pos_done":23,"init_date":"2026-04-06","deadline":"2026-04-27","new_deadline":null},
+    {"material":"PLACA NICHO","ps":"PRIMARY","category":"Primary POP","total_pos":27,"pos_visit":23,"pos_done":19,"init_date":"2026-04-06","deadline":"2026-04-27","new_deadline":null},
+    {"material":"REEL VELO 8MG","ps":"PRIMARY","category":"Primary POP","total_pos":13,"pos_visit":13,"pos_done":9,"init_date":"2026-04-06","deadline":"2026-04-27","new_deadline":null},
+    {"material":"DIPTICO","ps":"B2B","category":"B2B Material","total_pos":10,"pos_visit":10,"pos_done":10,"init_date":"2026-03-23","deadline":"2026-04-09","new_deadline":"2026-04-26"},
+    {"material":"MENUBOARD","ps":"B2B","category":"B2B Material","total_pos":10,"pos_visit":10,"pos_done":10,"init_date":"2026-03-23","deadline":"2026-04-09","new_deadline":"2026-04-26"}
+  ],
+  "VUSE 3K - Nuevo legal": [
+    {"material":"PLACA DE CIGARRERA","ps":"PRIMARY","category":"Primary POP","total_pos":10,"pos_visit":10,"pos_done":10,"init_date":"2026-03-24","deadline":"2026-04-14","new_deadline":null},
+    {"material":"PLACA DE CIGARRERA","ps":"PRIMARY","category":"Primary POP","total_pos":5,"pos_visit":1,"pos_done":1,"init_date":"2026-04-20","deadline":"2026-05-05","new_deadline":null},
+    {"material":"PLACA DE CIGARRERA","ps":"PRIMARY","category":"Primary POP","total_pos":10,"pos_visit":6,"pos_done":6,"init_date":"2026-04-20","deadline":"2026-05-05","new_deadline":null},
+    {"material":"STICKER VUSE - D. MULTICATEGORÍA","ps":"SECONDARY","category":"Secondary POP","total_pos":113,"pos_visit":97,"pos_done":91,"init_date":"2026-04-06","deadline":"2026-04-27","new_deadline":null},
+    {"material":"STICKER VUSE - D. MULTICATEGORÍA","ps":"SECONDARY","category":"Secondary POP","total_pos":39,"pos_visit":29,"pos_done":29,"init_date":"2026-04-20","deadline":"2026-05-05","new_deadline":null},
+    {"material":"PLACA DE CIGARRERA","ps":"PRIMARY","category":"Primary POP","total_pos":477,"pos_visit":475,"pos_done":469,"init_date":"2026-03-24","deadline":"2026-04-14","new_deadline":null},
+    {"material":"PLACA DE CIGARRERA","ps":"PRIMARY","category":"Primary POP","total_pos":66,"pos_visit":41,"pos_done":40,"init_date":"2026-04-20","deadline":"2026-05-05","new_deadline":null},
+    {"material":"PLACA DE CIGARRERA","ps":"PRIMARY","category":"Primary POP","total_pos":37,"pos_visit":36,"pos_done":36,"init_date":"2026-04-20","deadline":"2026-05-05","new_deadline":null},
+    {"material":"FRANJA VUSE - D. VELO/VUSE","ps":"SECONDARY","category":"Secondary POP","total_pos":348,"pos_visit":314,"pos_done":303,"init_date":"2026-04-06","deadline":"2026-04-27","new_deadline":null},
+    {"material":"FRANJA VUSE - D. VUSE/VUSE","ps":"SECONDARY","category":"Secondary POP","total_pos":196,"pos_visit":61,"pos_done":56,"init_date":"2026-04-20","deadline":"2026-04-30","new_deadline":null},
+    {"material":"FRANJA VUSE - D. VELO/VUSE","ps":"SECONDARY","category":"Secondary POP","total_pos":5,"pos_visit":5,"pos_done":5,"init_date":"2026-04-20","deadline":"2026-05-05","new_deadline":null}
+  ],
+  "VUSE": [
+    {"material":"ESQUINERO","ps":"SECONDARY","category":"Secondary POP","total_pos":14,"pos_visit":14,"pos_done":14,"init_date":"2026-02-18","deadline":"2026-03-07","new_deadline":"2026-03-24"},
+    {"material":"ESQUINERO","ps":"SECONDARY","category":"Secondary POP","total_pos":10,"pos_visit":10,"pos_done":10,"init_date":"2026-02-18","deadline":"2026-03-07","new_deadline":"2026-03-24"},
+    {"material":"ESQUINERO","ps":"SECONDARY","category":"Secondary POP","total_pos":1,"pos_visit":1,"pos_done":1,"init_date":"2026-02-18","deadline":"2026-03-07","new_deadline":"2026-03-24"},
+    {"material":"HEADER","ps":"SECONDARY","category":"Secondary POP","total_pos":189,"pos_visit":189,"pos_done":189,"init_date":"2026-03-06","deadline":"2026-03-20","new_deadline":null},
+    {"material":"HEADER","ps":"SECONDARY","category":"Secondary POP","total_pos":20,"pos_visit":20,"pos_done":20,"init_date":"2026-03-11","deadline":"2026-03-20","new_deadline":null},
+    {"material":"HEADER","ps":"SECONDARY","category":"Secondary POP","total_pos":3,"pos_visit":3,"pos_done":3,"init_date":"2026-03-11","deadline":"2026-03-19","new_deadline":null},
+    {"material":"ESQUINERO","ps":"SECONDARY","category":"Secondary POP","total_pos":107,"pos_visit":107,"pos_done":105,"init_date":"2026-02-18","deadline":"2026-03-07","new_deadline":"2026-03-24"},
+    {"material":"ESQUINERO","ps":"SECONDARY","category":"Secondary POP","total_pos":39,"pos_visit":39,"pos_done":38,"init_date":"2026-02-18","deadline":"2026-03-07","new_deadline":"2026-03-24"},
+    {"material":"ESQUINERO","ps":"SECONDARY","category":"Secondary POP","total_pos":8,"pos_visit":8,"pos_done":5,"init_date":"2026-02-18","deadline":"2026-03-07","new_deadline":"2026-03-24"},
+    {"material":"MENUBOARD","ps":"B2B","category":"B2B Material","total_pos":574,"pos_visit":574,"pos_done":574,"init_date":"2026-01-22","deadline":"2026-02-09","new_deadline":"2026-03-30"},
+    {"material":"MENUBOARD","ps":"B2B","category":"B2B Material","total_pos":70,"pos_visit":70,"pos_done":70,"init_date":"2026-01-22","deadline":"2026-02-09","new_deadline":"2026-03-30"},
+    {"material":"MENUBOARD","ps":"B2B","category":"B2B Material","total_pos":40,"pos_visit":40,"pos_done":40,"init_date":"2026-01-22","deadline":"2026-01-24","new_deadline":"2026-02-11"},
+    {"material":"CENEFAS COUNTER","ps":"SECONDARY","category":"Secondary POP","total_pos":574,"pos_visit":574,"pos_done":561,"init_date":"2026-02-20","deadline":"2026-03-07","new_deadline":"2026-04-30"},
+    {"material":"CENEFAS COUNTER","ps":"SECONDARY","category":"Secondary POP","total_pos":70,"pos_visit":70,"pos_done":70,"init_date":"2026-02-20","deadline":"2026-03-07","new_deadline":"2026-03-16"},
+    {"material":"CENEFAS COUNTER","ps":"SECONDARY","category":"Secondary POP","total_pos":40,"pos_visit":40,"pos_done":40,"init_date":"2026-02-20","deadline":"2026-03-07","new_deadline":"2026-03-16"}
+  ],
+  "VUSE 3K": [
+    {"material":"PLACA FACING","ps":"SECONDARY","category":"Secondary POP","total_pos":1,"pos_visit":1,"pos_done":0,"init_date":"2026-03-11","deadline":"2026-03-17","new_deadline":null},
+    {"material":"PLACA FACING","ps":"SECONDARY","category":"Secondary POP","total_pos":6,"pos_visit":0,"pos_done":0,"init_date":null,"deadline":null,"new_deadline":null},
+    {"material":"PLACA FACING","ps":"SECONDARY","category":"Secondary POP","total_pos":3,"pos_visit":0,"pos_done":0,"init_date":null,"deadline":null,"new_deadline":null},
+    {"material":"PLACA FACING","ps":"SECONDARY","category":"Secondary POP","total_pos":40,"pos_visit":40,"pos_done":30,"init_date":"2026-03-11","deadline":"2026-03-17","new_deadline":"2026-03-23"},
+    {"material":"PLACA FACING","ps":"SECONDARY","category":"Secondary POP","total_pos":2,"pos_visit":0,"pos_done":0,"init_date":null,"deadline":null,"new_deadline":null},
+    {"material":"PLACA DE CIGARRERA","ps":"PRIMARY","category":"Primary POP","total_pos":65,"pos_visit":65,"pos_done":65,"init_date":"2026-01-22","deadline":"2026-01-24","new_deadline":null},
+    {"material":"PLACA DE CIGARRERA","ps":"PRIMARY","category":"Primary POP","total_pos":460,"pos_visit":460,"pos_done":460,"init_date":"2026-01-12","deadline":"2026-01-28","new_deadline":"2026-02-11"},
+    {"material":"PLACA DE CIGARRERA","ps":"PRIMARY","category":"Primary POP","total_pos":36,"pos_visit":36,"pos_done":34,"init_date":"2026-01-22","deadline":"2026-01-24","new_deadline":"2026-02-11"},
+    {"material":"DIPTICO","ps":"B2B","category":"B2B Material","total_pos":70,"pos_visit":70,"pos_done":68,"init_date":"2026-01-26","deadline":"2026-02-12","new_deadline":"2026-05-01"},
+    {"material":"DIPTICO","ps":"B2B","category":"B2B Material","total_pos":574,"pos_visit":574,"pos_done":515,"init_date":"2026-01-26","deadline":"2026-02-12","new_deadline":"2026-05-01"},
+    {"material":"DIPTICO","ps":"B2B","category":"B2B Material","total_pos":40,"pos_visit":40,"pos_done":37,"init_date":"2026-01-26","deadline":"2026-02-12","new_deadline":"2026-05-01"},
+    {"material":"DISPENSER VUSE/VUSE","ps":"SECONDARY","category":"Secondary POP","total_pos":65,"pos_visit":0,"pos_done":0,"init_date":null,"deadline":null,"new_deadline":null},
+    {"material":"DISPENSER VUSE/VUSE","ps":"SECONDARY","category":"Secondary POP","total_pos":200,"pos_visit":196,"pos_done":196,"init_date":"2026-01-13","deadline":"2026-01-26","new_deadline":"2026-04-15"},
+    {"material":"DISPENSER VUSE/VUSE","ps":"SECONDARY","category":"Secondary POP","total_pos":29,"pos_visit":0,"pos_done":0,"init_date":null,"deadline":null,"new_deadline":null},
+    {"material":"PLACA DE DISPENSER","ps":"SECONDARY","category":"Secondary POP","total_pos":65,"pos_visit":59,"pos_done":59,"init_date":"2026-01-12","deadline":"2026-01-28","new_deadline":"2026-02-11"},
+    {"material":"PLACA DE DISPENSER","ps":"SECONDARY","category":"Secondary POP","total_pos":61,"pos_visit":61,"pos_done":58,"init_date":"2026-01-12","deadline":"2026-01-28","new_deadline":"2026-02-11"},
+    {"material":"PLACA DE DISPENSER","ps":"SECONDARY","category":"Secondary POP","total_pos":29,"pos_visit":21,"pos_done":21,"init_date":"2026-01-12","deadline":"2026-01-28","new_deadline":"2026-02-11"},
+    {"material":"PLACA FACING","ps":"SECONDARY","category":"Secondary POP","total_pos":1,"pos_visit":1,"pos_done":1,"init_date":"2026-03-11","deadline":"2026-03-12","new_deadline":null},
+    {"material":"PLACA FACING","ps":"SECONDARY","category":"Secondary POP","total_pos":5,"pos_visit":5,"pos_done":5,"init_date":"2026-03-11","deadline":"2026-03-12","new_deadline":null},
+    {"material":"TABLE TENT","ps":"SECONDARY","category":"Secondary POP","total_pos":70,"pos_visit":70,"pos_done":68,"init_date":"2026-01-22","deadline":"2026-02-09","new_deadline":"2026-05-31"},
+    {"material":"TABLE TENT","ps":"SECONDARY","category":"Secondary POP","total_pos":574,"pos_visit":574,"pos_done":562,"init_date":"2026-01-22","deadline":"2026-02-09","new_deadline":"2026-05-31"},
+    {"material":"TABLE TENT","ps":"SECONDARY","category":"Secondary POP","total_pos":40,"pos_visit":40,"pos_done":39,"init_date":"2026-01-22","deadline":"2026-02-09","new_deadline":"2026-05-31"}
+  ],
+  "LS CORE": [
+    {"material":"TABLE TENT","ps":"SECONDARY","category":"Secondary POP","total_pos":15,"pos_visit":15,"pos_done":15,"init_date":"2026-04-01","deadline":"2026-04-18","new_deadline":null},
+    {"material":"TABLE TENT","ps":"SECONDARY","category":"Secondary POP","total_pos":10,"pos_visit":10,"pos_done":10,"init_date":"2026-04-01","deadline":"2026-04-18","new_deadline":null},
+    {"material":"TABLE TENT","ps":"SECONDARY","category":"Secondary POP","total_pos":1,"pos_visit":1,"pos_done":1,"init_date":"2026-04-01","deadline":"2026-04-18","new_deadline":null},
+    {"material":"VIBRIN","ps":"SECONDARY","category":"Secondary POP","total_pos":66,"pos_visit":66,"pos_done":66,"init_date":"2026-03-06","deadline":"2026-03-20","new_deadline":null},
+    {"material":"VIBRIN","ps":"SECONDARY","category":"Secondary POP","total_pos":1,"pos_visit":1,"pos_done":1,"init_date":"2026-03-11","deadline":"2026-03-20","new_deadline":null},
+    {"material":"VIBRIN","ps":"SECONDARY","category":"Secondary POP","total_pos":3,"pos_visit":3,"pos_done":3,"init_date":"2026-03-11","deadline":"2026-03-19","new_deadline":null},
+    {"material":"STICKER COUNTER","ps":"SECONDARY","category":"Secondary POP","total_pos":53,"pos_visit":53,"pos_done":47,"init_date":"2026-03-06","deadline":"2026-03-20","new_deadline":"2026-05-10"},
+    {"material":"STICKER COUNTER","ps":"SECONDARY","category":"Secondary POP","total_pos":27,"pos_visit":27,"pos_done":27,"init_date":"2026-03-11","deadline":"2026-03-27","new_deadline":null},
+    {"material":"STICKER COUNTER","ps":"SECONDARY","category":"Secondary POP","total_pos":3,"pos_visit":3,"pos_done":3,"init_date":"2026-03-11","deadline":"2026-03-20","new_deadline":null}
+  ],
+  "ECLIPSE": [
+    {"material":"PLACA DE CIGARRERA","ps":"PRIMARY","category":"Primary POP","total_pos":917,"pos_visit":913,"pos_done":518,"init_date":"2025-12-03","deadline":"2025-12-30","new_deadline":null},
+    {"material":"PLACA DE CIGARRERA","ps":"PRIMARY","category":"Primary POP","total_pos":220,"pos_visit":218,"pos_done":121,"init_date":"2025-12-03","deadline":"2025-12-30","new_deadline":null},
+    {"material":"PLACA DE CIGARRERA","ps":"PRIMARY","category":"Primary POP","total_pos":6,"pos_visit":6,"pos_done":5,"init_date":"2025-12-03","deadline":"2025-12-10","new_deadline":null},
+    {"material":"TABLE TENT","ps":"SECONDARY","category":"Secondary POP","total_pos":574,"pos_visit":574,"pos_done":561,"init_date":"2026-01-20","deadline":"2026-02-06","new_deadline":"2026-05-31"}
+  ]
+};
 
-// ── DATE UTILS ──
-function parseDate(s) {
-  if (!s || s === 'TBD') return null;
-  // dd/mm/yyyy
-  let m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-  if (m) return new Date(+m[3], +m[2]-1, +m[1]);
-  // dd-Mon (Spanish abbrev)
-  const months = {ene:0,feb:1,mar:2,abr:3,may:4,jun:5,jul:6,ago:7,sep:8,oct:9,nov:10,dic:11};
-  m = s.match(/^(\d{1,2})-([A-Za-z]+)$/);
-  if (m) {
-    const mo = months[m[2].toLowerCase()];
-    if (mo !== undefined) return new Date(2025, mo, +m[1]);
+// ── COLORS ───────────────────────────────────────────────────────────────────
+function campaignColors(name) {
+  const n = name.toUpperCase();
+  if (n.includes('ECLIPSE') || n.includes('VIBRIN'))
+    return { accent:'#e85d45', cardBg:'#fde8e4', datesBg:'#fcd6d0' };
+  if (n.includes('VELO'))
+    return { accent:'#3ab4e0', cardBg:'#daf0fb', datesBg:'#b8e3f5' };
+  if (n.includes('VUSE'))
+    return { accent:'#7c4fcc', cardBg:'#ede4fc', datesBg:'#d9c8f7' };
+  return { accent:'#5b7fa6', cardBg:'#e4eaf3', datesBg:'#ccd5e3' };
+}
+
+// ── HELPERS ──────────────────────────────────────────────────────────────────
+function fmtDate(str) {
+  if (!str || str === 'null' || str === 'TBD') return '–';
+  const d = new Date(str);
+  if (isNaN(d)) return '–';
+  return d.toLocaleDateString('es-PE', { day:'2-digit', month:'short', year:'numeric' });
+}
+
+function maxDate(a, b) {
+  if (!a) return b;
+  if (!b) return a;
+  return new Date(a) >= new Date(b) ? a : b;
+}
+
+function minDate(a, b) {
+  if (!a) return b;
+  if (!b) return a;
+  return new Date(a) <= new Date(b) ? a : b;
+}
+
+// ── PROCESS CAMPAIGN DATA ────────────────────────────────────────────────────
+// Re-classify: ps=B2B → B2B Material
+function reClassify(rows) {
+  return rows.map(r => {
+    let cat = r.category;
+    if (r.ps === 'B2B') cat = 'B2B Material';
+    return { ...r, category: cat };
+  });
+}
+
+const CAT_ORDER = ['B2B Material','Primary POP','Secondary POP','Special Implementations'];
+
+function groupByCategory(rows, viewType) {
+  // viewType: 'prog' = Programación, 'efec' = Efectividad
+  const cats = {};
+  for (const row of rows) {
+    const c = row.category;
+    if (!cats[c]) cats[c] = { total_ref: 0, completed: 0, materials: new Set() };
+    if (viewType === 'prog') {
+      cats[c].total_ref  += row.total_pos;
+      cats[c].completed  += row.pos_visit;
+    } else {
+      cats[c].total_ref  += row.pos_visit;
+      cats[c].completed  += row.pos_done;
+    }
+    cats[c].materials.add(row.material);
   }
-  return null;
-}
-function fmtDate(d) {
-  if (!d) return '—';
-  return d.toLocaleDateString('es-PE', {day:'2-digit', month:'short', year:'numeric'});
-}
-function minDate(arr) {
-  const dates = arr.map(parseDate).filter(Boolean);
-  if (!dates.length) return null;
-  return new Date(Math.min(...dates));
-}
-function maxDate(arr) {
-  const dates = arr.map(parseDate).filter(Boolean);
-  if (!dates.length) return null;
-  return new Date(Math.max(...dates));
+  // Sort by CAT_ORDER
+  return CAT_ORDER.filter(c => cats[c]).map(c => ({ cat: c, ...cats[c], materials: [...cats[c].materials] }));
 }
 
-// ── DARKEN COLOR ──
-function darken(hex, amt) {
-  let c = parseInt(hex.slice(1),16);
-  let r = Math.max(0,(c>>16)-amt), g = Math.max(0,((c>>8)&0xff)-amt), b = Math.max(0,(c&0xff)-amt);
-  return '#'+[r,g,b].map(x=>x.toString(16).padStart(2,'0')).join('');
+function getDates(rows) {
+  let minInit = null, maxDeadline = null;
+  for (const r of rows) {
+    const d = r.init_date && r.init_date !== 'TBD' ? r.init_date : null;
+    const dl = r.deadline && r.deadline !== 'TBD' ? r.deadline : null;
+    const ndl = r.new_deadline && r.new_deadline !== 'TBD' ? r.new_deadline : null;
+    if (d) minInit = minDate(minInit, d);
+    const projEnd = maxDate(dl, ndl);
+    if (projEnd) maxDeadline = maxDate(maxDeadline, projEnd);
+  }
+  return { kickoff: minInit, projEnd: maxDeadline };
 }
 
-// ── CHARTS REGISTRY ──
-const chartInstances = {};
+// ── DONUT CHART ID COUNTER ────────────────────────────────────────────────────
+let chartIdCounter = 0;
+const allCharts = {};
 
-function buildDonut(canvasId, pct, accent) {
-  if (chartInstances[canvasId]) { chartInstances[canvasId].destroy(); }
-  const ctx = document.getElementById(canvasId).getContext('2d');
-  chartInstances[canvasId] = new Chart(ctx, {
+function renderDonutCard(catData, colors, viewType) {
+  const id = 'donut_' + (++chartIdCounter);
+  const total = catData.total_ref;
+  const comp = Math.min(catData.completed, total);
+  const pend = Math.max(total - comp, 0);
+  const pct = total > 0 ? Math.round(comp / total * 100) : 0;
+
+  const mats = catData.materials.map(m => `<span class="mat-chip">${m}</span>`).join('');
+
+  return `
+    <div class="donut-card" style="background:${colors.accent};">
+      <div class="card-title">${catData.cat}<br><span style="font-size:0.65rem;opacity:0.85">${Math.round(total).toLocaleString()} POS ref.</span></div>
+      <div class="donut-wrap">
+        <canvas id="${id}"></canvas>
+        <div class="donut-pct">${pct}%</div>
+      </div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:rgba(255,255,255,0.25)"></div>Pending</div>
+        <div class="legend-item"><div class="legend-dot" style="background:rgba(255,255,255,0.92)"></div>Completed</div>
+      </div>
+      <div class="materials-list">${mats}</div>
+    </div>`;
+}
+
+function renderDatesCard(dates, colors) {
+  return `
+    <div class="dates-card" style="background:${colors.cardBg};">
+      <div class="dates-card-title" style="color:${colors.accent};">📅 Campaign<br>Dates</div>
+      <div class="date-item" style="background:${colors.datesBg};">
+        <div class="date-label">Kick off</div>
+        <div class="date-value">${fmtDate(dates.kickoff)}</div>
+      </div>
+      <div class="date-item" style="background:${colors.datesBg};">
+        <div class="date-label">Projected end</div>
+        <div class="date-value">${fmtDate(dates.projEnd)}</div>
+      </div>
+    </div>`;
+}
+
+// ── BUILD HTML ────────────────────────────────────────────────────────────────
+const container = document.body;
+
+for (const [campaignName, rawRows] of Object.entries(RAW)) {
+  const rows = reClassify(rawRows);
+  const colors = campaignColors(campaignName);
+  const blockId = campaignName.replace(/[^a-z0-9]/gi,'_');
+  const dates = getDates(rows);
+
+  const progGroups = groupByCategory(rows, 'prog');
+  const efecGroups = groupByCategory(rows, 'efec');
+
+  // Build donut cards HTML + track IDs
+  const progCardData = progGroups.map(g => ({ g, id: chartIdCounter + 1, html: renderDonutCard(g, colors, 'prog') }));
+  // After renderDonutCard runs, chartIdCounter is incremented inside
+  // Re-do cleanly:
+  let progCardsHtml = '';
+  const progDonutData = [];
+  for (const g of progGroups) {
+    const id = 'donut_' + (++chartIdCounter);
+    const total = g.total_ref;
+    const comp = Math.min(g.completed, total);
+    const pend = Math.max(total - comp, 0);
+    const pct = total > 0 ? Math.round(comp / total * 100) : 0;
+    progDonutData.push({ id, pend, comp, accent: colors.accent });
+    const mats = g.materials.map(m => `<span class="mat-chip">${m}</span>`).join('');
+    progCardsHtml += `
+      <div class="donut-card" style="background:${colors.accent};">
+        <div class="card-title">${g.cat}<br><span style="font-size:0.65rem;opacity:0.85">${Math.round(total).toLocaleString()} POS ref.</span></div>
+        <div class="donut-wrap"><canvas id="${id}"></canvas><div class="donut-pct">${pct}%</div></div>
+        <div class="legend">
+          <div class="legend-item"><div class="legend-dot" style="background:rgba(255,255,255,0.25)"></div>Pending</div>
+          <div class="legend-item"><div class="legend-dot" style="background:rgba(255,255,255,0.92)"></div>Completed</div>
+        </div>
+        <div class="materials-list">${mats}</div>
+      </div>`;
+  }
+
+  let efecCardsHtml = '';
+  const efecDonutData = [];
+  for (const g of efecGroups) {
+    const id = 'donut_' + (++chartIdCounter);
+    const total = g.total_ref;
+    const comp = Math.min(g.completed, total);
+    const pend = Math.max(total - comp, 0);
+    const pct = total > 0 ? Math.round(comp / total * 100) : 0;
+    efecDonutData.push({ id, pend, comp, accent: colors.accent });
+    const mats = g.materials.map(m => `<span class="mat-chip">${m}</span>`).join('');
+    efecCardsHtml += `
+      <div class="donut-card" style="background:${colors.accent};">
+        <div class="card-title">${g.cat}<br><span style="font-size:0.65rem;opacity:0.85">${Math.round(total).toLocaleString()} POS ref.</span></div>
+        <div class="donut-wrap"><canvas id="${id}"></canvas><div class="donut-pct">${pct}%</div></div>
+        <div class="legend">
+          <div class="legend-item"><div class="legend-dot" style="background:rgba(255,255,255,0.25)"></div>Pending</div>
+          <div class="legend-item"><div class="legend-dot" style="background:rgba(255,255,255,0.92)"></div>Completed</div>
+        </div>
+        <div class="materials-list">${mats}</div>
+      </div>`;
+  }
+
+  const datesCardHtml = renderDatesCard(dates, colors);
+
+  const block = document.createElement('div');
+  block.className = 'campaign-block';
+  block.innerHTML = `
+    <div class="campaign-title" style="color:${colors.accent};">${campaignName}</div>
+    <div class="tabs">
+      <button class="tab-btn active" style="border-color:${colors.accent};background:${colors.accent};color:#fff;"
+        onclick="switchTab('${blockId}','prog',this,'${colors.accent}')">Programación de visitas</button>
+      <button class="tab-btn" style="border-color:${colors.accent};color:${colors.accent};"
+        onclick="switchTab('${blockId}','efec',this,'${colors.accent}')">Efectividad de visitas</button>
+    </div>
+    <div id="${blockId}_prog" class="view-pane active">
+      <div class="cards-row">${progCardsHtml}${datesCardHtml}</div>
+    </div>
+    <div id="${blockId}_efec" class="view-pane">
+      <div class="cards-row">${efecCardsHtml}${datesCardHtml}</div>
+    </div>
+  `;
+  container.appendChild(block);
+
+  // Store donut data for chart init
+  window._donutData = window._donutData || [];
+  window._donutData.push(...progDonutData, ...efecDonutData);
+}
+
+// ── TAB SWITCH ────────────────────────────────────────────────────────────────
+function switchTab(blockId, view, btn, accent) {
+  // Hide both panes
+  document.getElementById(blockId + '_prog').classList.remove('active');
+  document.getElementById(blockId + '_efec').classList.remove('active');
+  document.getElementById(blockId + '_' + view).classList.add('active');
+
+  // Update tab button styles
+  const allBtns = btn.closest('.tabs').querySelectorAll('.tab-btn');
+  allBtns.forEach(b => {
+    b.style.background = '';
+    b.style.color = accent;
+  });
+  btn.style.background = accent;
+  btn.style.color = '#fff';
+
+  // Initialize charts in newly shown pane if not yet done
+  const pane = document.getElementById(blockId + '_' + view);
+  pane.querySelectorAll('canvas').forEach(canvas => {
+    if (!allCharts[canvas.id]) {
+      const dd = (window._donutData || []).find(d => d.id === canvas.id);
+      if (dd) initChart(dd);
+    }
+  });
+}
+
+// ── INIT CHARTS ───────────────────────────────────────────────────────────────
+function initChart(dd) {
+  const canvas = document.getElementById(dd.id);
+  if (!canvas || allCharts[dd.id]) return;
+  const chart = new Chart(canvas, {
     type: 'doughnut',
     data: {
       datasets: [{
-        data: [pct, 100 - pct],
-        backgroundColor: ['rgba(255,255,255,0.92)', 'rgba(255,255,255,0.25)'],
+        data: [dd.pend, dd.comp],
+        backgroundColor: ['rgba(255,255,255,0.25)', 'rgba(255,255,255,0.92)'],
         borderWidth: 0,
         hoverOffset: 0
       }]
@@ -212,157 +476,14 @@ function buildDonut(canvasId, pct, accent) {
       plugins: { legend: { display: false }, tooltip: { enabled: false } }
     }
   });
+  allCharts[dd.id] = chart;
 }
 
-// ── RENDER VIEW (prog or efectividad) ──
-function renderView(campaign, viewType) {
-  const { colors, categories, dates } = campaign;
-  const cid = campaign.name.replace(/[^a-z0-9]/gi,'_');
-
-  // Compute dates
-  const kickoff = minDate(dates.orig);
-  const projEnd = maxDate([...dates.deadline, ...dates.new_deadline]);
-
-  let html = `<div class="cards-row" id="cards_${cid}_${viewType}">`;
-
-  categories.forEach((cat, ci) => {
-    const refVal = viewType === 'prog' ? cat.total_pos : cat.pos_visit;
-    const doneVal = viewType === 'prog' ? cat.pos_visit : cat.pos_done;
-    const pct = refVal > 0 ? Math.round(doneVal / refVal * 100) : 0;
-    const pending = 100 - pct;
-    const posLabel = viewType === 'prog' ? `Total POS: ${cat.total_pos.toLocaleString()}` : `POS Visit: ${cat.pos_visit.toLocaleString()}`;
-    const canvasId = `chart_${cid}_${viewType}_${ci}`;
-
-    html += `
-    <div class="pop-card" style="background:${colors.accent}">
-      <div class="pop-card-title">${cat.name}</div>
-      <div class="pop-card-pos">${posLabel}</div>
-      <div style="display:flex;align-items:center;gap:12px">
-        <div class="donut-container">
-          <canvas id="${canvasId}" width="100" height="100"></canvas>
-          <div class="donut-pct">${pct}%</div>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:8px">
-          <div class="legend">
-            <div class="legend-item">
-              <div class="legend-dot" style="background:rgba(255,255,255,0.92)"></div>Completed
-            </div>
-            <div class="legend-item">
-              <div class="legend-dot" style="background:rgba(255,255,255,0.25)"></div>Pending
-            </div>
-          </div>
-          <div class="chips">
-            ${cat.materials.map(m => `<span class="chip">${m}</span>`).join('')}
-          </div>
-        </div>
-      </div>
-    </div>`;
-  });
-
-  // Dates card
-  html += `
-    <div class="dates-card" style="background:${colors.card}">
-      <div class="dates-card-title">📅 Campaign Dates</div>
-      <div class="dates-section" style="background:${colors.dates}">
-        <div class="dates-label">Kick off</div>
-        <div class="dates-value">${fmtDate(kickoff)}</div>
-      </div>
-      <div class="dates-section" style="background:${colors.dates}">
-        <div class="dates-label">Projected end</div>
-        <div class="dates-value">${fmtDate(projEnd)}</div>
-      </div>
-    </div>
-  </div>`;
-
-  return html;
-}
-
-// ── SWITCH TAB ──
-function switchTab(campName, viewType) {
-  const cid = campName.replace(/[^a-z0-9]/gi,'_');
-  const camp = DATA.find(c => c.name === campName);
-  const accent = camp.colors.accent;
-
-  // Update tab styles
-  ['prog','ef'].forEach(vt => {
-    const tab = document.getElementById(`tab_${cid}_${vt}`);
-    if (vt === viewType) {
-      tab.classList.remove('inactive');
-      tab.classList.add('active');
-      tab.style.backgroundColor = accent;
-      tab.style.borderColor = accent;
-      tab.style.color = '#fff';
-    } else {
-      tab.classList.remove('active');
-      tab.classList.add('inactive');
-      tab.style.backgroundColor = 'transparent';
-      tab.style.borderColor = accent;
-      tab.style.color = accent;
-    }
-  });
-
-  // Show/hide panels
-  ['prog','ef'].forEach(vt => {
-    const panel = document.getElementById(`panel_${cid}_${vt}`);
-    panel.classList.toggle('active', vt === viewType);
-  });
-
-  // Build charts for active view
-  setTimeout(() => {
-    const { categories } = camp;
-    categories.forEach((cat, ci) => {
-      const refVal = viewType === 'prog' ? cat.total_pos : cat.pos_visit;
-      const doneVal = viewType === 'prog' ? cat.pos_visit : cat.pos_done;
-      const pct = refVal > 0 ? Math.round(doneVal / refVal * 100) : 0;
-      const canvasId = `chart_${cid}_${viewType}_${ci}`;
-      buildDonut(canvasId, pct, accent);
-    });
-  }, 20);
-}
-
-// ── BUILD ALL CAMPAIGNS ──
-const app = document.getElementById('app');
-
-DATA.forEach(camp => {
-  const cid = camp.name.replace(/[^a-z0-9]/gi,'_');
-  const { colors } = camp;
-
-  const progHTML = renderView(camp, 'prog');
-  const efHTML   = renderView(camp, 'ef');
-
-  const block = document.createElement('div');
-  block.className = 'campaign';
-  block.innerHTML = `
-    <div class="campaign-header">
-      <div class="campaign-dot" style="background:${colors.accent}"></div>
-      <div class="campaign-title">${camp.name}</div>
-    </div>
-    <div class="tabs">
-      <div id="tab_${cid}_prog" class="tab active"
-           style="background:${colors.accent};border-color:${colors.accent};color:#fff"
-           onclick="switchTab('${camp.name}','prog')">
-        Programación de visitas
-      </div>
-      <div id="tab_${cid}_ef" class="tab inactive"
-           style="border-color:${colors.accent};color:${colors.accent}"
-           onclick="switchTab('${camp.name}','ef')">
-        Efectividad de visitas
-      </div>
-    </div>
-    <div id="panel_${cid}_prog" class="view-panel active">${progHTML}</div>
-    <div id="panel_${cid}_ef"   class="view-panel">${efHTML}</div>
-  `;
-  app.appendChild(block);
-});
-
-// ── INIT CHARTS for default visible (prog) tabs ──
-window.addEventListener('load', () => {
-  DATA.forEach(camp => {
-    const cid = camp.name.replace(/[^a-z0-9]/gi,'_');
-    camp.categories.forEach((cat, ci) => {
-      const pct = cat.total_pos > 0 ? Math.round(cat.pos_visit / cat.total_pos * 100) : 0;
-      buildDonut(`chart_${cid}_prog_${ci}`, pct, camp.colors.accent);
-    });
+// Init charts for all visible panes on load
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.view-pane.active canvas').forEach(canvas => {
+    const dd = (window._donutData || []).find(d => d.id === canvas.id);
+    if (dd) initChart(dd);
   });
 });
 </script>

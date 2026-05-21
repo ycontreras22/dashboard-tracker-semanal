@@ -3,392 +3,418 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard Tracker de Campañas</title>
+<title>TRACKER SEMANAL</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: 'Nunito', sans-serif;
-    background: #f0f0f0;
-    padding: 28px 20px 48px;
-    min-height: 100vh;
-  }
-  h1 {
-    text-align: center;
-    font-size: 26px;
-    font-weight: 900;
-    color: #333;
-    margin-bottom: 32px;
-    letter-spacing: -0.5px;
-  }
-  .campaign-block {
-    margin-bottom: 36px;
-  }
-  .campaign-title {
-    font-size: 20px;
-    font-weight: 900;
-    margin-bottom: 12px;
-    padding-left: 4px;
-  }
-  .tabs {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 16px;
-    flex-wrap: wrap;
-  }
+  body { font-family: 'Nunito', sans-serif; background: #f0f0f0; padding: 24px 16px 48px; }
+  h1 { text-align: center; font-size: 1.5rem; font-weight: 800; color: #333; margin-bottom: 28px; letter-spacing: -0.5px; }
+  
+  .campaign-block { margin-bottom: 36px; }
+  .campaign-title { font-size: 1.15rem; font-weight: 800; margin-bottom: 12px; padding: 0 4px; }
+  
+  .tab-bar { display: flex; gap: 8px; margin-bottom: 14px; }
   .tab-btn {
-    padding: 7px 18px;
-    border-radius: 20px;
-    font-family: 'Nunito', sans-serif;
-    font-size: 13px;
-    font-weight: 700;
-    border: 2px solid transparent;
-    cursor: pointer;
-    transition: all .18s;
-    outline: none;
+    padding: 7px 18px; border-radius: 20px; border: 2px solid; cursor: pointer;
+    font-family: 'Nunito', sans-serif; font-size: 0.82rem; font-weight: 700;
+    transition: all 0.18s; white-space: nowrap;
   }
+  
   .cards-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 14px;
-    align-items: flex-start;
+    display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-start;
   }
-  .pop-card {
-    border-radius: 18px;
-    padding: 16px 16px 14px;
-    min-width: 170px;
-    max-width: 220px;
-    flex: 1 1 170px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
+  
+  .donut-card {
+    border-radius: 18px; padding: 16px 14px 14px;
+    min-width: 160px; max-width: 200px; flex: 1 1 160px;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
   }
-  .pop-card-title {
-    font-size: 12px;
-    font-weight: 800;
-    text-align: center;
-    color: rgba(255,255,255,0.95);
+  .card-title {
+    font-size: 0.78rem; font-weight: 800; color: #fff; text-align: center;
     line-height: 1.3;
   }
-  .donut-wrap {
-    position: relative;
-    width: 100px;
-    height: 100px;
-    flex-shrink: 0;
+  .donut-wrapper {
+    position: relative; width: 100px; height: 100px; flex-shrink: 0;
   }
+  .donut-wrapper canvas { position: absolute; top: 0; left: 0; }
   .donut-pct {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 17px;
-    font-weight: 900;
-    color: white;
-    pointer-events: none;
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    font-size: 17px; font-weight: 900; color: #fff; pointer-events: none;
     white-space: nowrap;
   }
   .legend-row {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-    flex-wrap: wrap;
+    display: flex; gap: 10px; font-size: 0.7rem; font-weight: 700; color: rgba(255,255,255,0.9);
   }
-  .legend-item {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 10px;
-    font-weight: 700;
-    color: rgba(255,255,255,0.9);
+  .legend-dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; margin-right: 3px; vertical-align: middle; }
+  .materials-chips { display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; margin-top: 2px; }
+  .chip {
+    background: rgba(255,255,255,0.22); color: #fff;
+    border-radius: 10px; padding: 2px 8px;
+    font-size: 0.65rem; font-weight: 700; white-space: nowrap;
   }
-  .legend-dot {
-    width: 9px;
-    height: 9px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-  .materials-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 5px;
-    justify-content: center;
-  }
-  .mat-chip {
-    background: rgba(255,255,255,0.22);
-    color: rgba(255,255,255,0.95);
-    border-radius: 20px;
-    padding: 3px 9px;
-    font-size: 10px;
-    font-weight: 700;
-  }
-  /* Date card */
+  
   .date-card {
-    border-radius: 18px;
-    width: 145px;
-    min-width: 145px;
-    max-width: 145px;
-    padding: 16px 14px 14px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+    border-radius: 18px; padding: 14px 12px;
+    width: 145px; flex: 0 0 145px; display: flex; flex-direction: column; gap: 8px;
   }
   .date-card-title {
-    font-size: 13px;
-    font-weight: 900;
-    text-align: center;
+    font-size: 0.8rem; font-weight: 800; color: #fff; text-align: center;
+    margin-bottom: 2px;
   }
-  .date-item {
-    border-radius: 10px;
-    padding: 8px 10px;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-  .date-label {
-    font-size: 9px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-    opacity: 0.7;
-  }
-  .date-value {
-    font-size: 13px;
-    font-weight: 900;
+  .date-item { border-radius: 10px; padding: 8px 10px; }
+  .date-label { font-size: 0.65rem; font-weight: 700; color: #555; text-transform: uppercase; letter-spacing: 0.3px; }
+  .date-value { font-size: 0.82rem; font-weight: 800; color: #333; margin-top: 2px; }
+  
+  @media (max-width: 600px) {
+    .donut-card { min-width: 140px; }
+    .date-card { width: 130px; flex: 0 0 130px; }
   }
 </style>
 </head>
 <body>
-<h1>Tracker Semanal</h1>
+
+<h1>TRACKER SEMANAL</h1>
+
 <div id="app"></div>
 
 <script>
-const RAW = {"CROSS":[{"KKAA":"OXXO","PRIMARY/SECONDARY":"SECONDARY","Material":"TABLE TENT","Scope":"LIMA","Total POS /Q":27,"POS/Q Visit":27,"POS/Q Done":27,"Progress":1,"POS/Ineffective":0,"Original Initial Date":"2026-04-15","Lead Time":17,"Deadline":"2026-05-02","New Initial Date":null,"New Deadline":null,"Status":"DONE","Comments":null},{"KKAA":"OXXO","PRIMARY/SECONDARY":"SECONDARY","Material":"TABLE TENT","Scope":"KC","Total POS /Q":3,"POS/Q Visit":3,"POS/Q Done":3,"Progress":1,"POS/Ineffective":0,"Original Initial Date":"2026-04-20","Lead Time":12,"Deadline":"2026-05-02","New Initial Date":null,"New Deadline":null,"Status":"DONE","Comments":null},{"KKAA":"OXXO","PRIMARY/SECONDARY":"SECONDARY","Material":"TABLE TENT","Scope":"NKC","Total POS /Q":1,"POS/Q Visit":1,"POS/Q Done":1,"Progress":1,"POS/Ineffective":0,"Original Initial Date":"2026-04-20","Lead Time":12,"Deadline":"2026-05-02","New Initial Date":null,"New Deadline":null,"Status":"DONE","Comments":null},{"KKAA":"OXXO","PRIMARY/SECONDARY":"SECONDARY","Material":"VIBRIN","Scope":"LIMA","Total POS /Q":62,"POS/Q Visit":62,"POS/Q Done":62,"Progress":1,"POS/Ineffective":0,"Original Initial Date":"2026-04-15","Lead Time":17,"Deadline":"2026-05-02","New Initial Date":null,"New Deadline":null,"Status":"DONE","Comments":null},{"KKAA":"OXXO","PRIMARY/SECONDARY":"SECONDARY","Material":"VIBRIN","Scope":"KC","Total POS /Q":7,"POS/Q Visit":7,"POS/Q Done":7,"Progress":1,"POS/Ineffective":0,"Original Initial Date":"2026-04-20","Lead Time":12,"Deadline":"2026-05-02","New Initial Date":null,"New Deadline":null,"Status":"DONE","Comments":null},{"KKAA":"TAMBO","PRIMARY/SECONDARY":"SECONDARY","Material":"TABLE TENT","Scope":"LIMA","Total POS /Q":248,"POS/Q Visit":248,"POS/Q Done":246,"Progress":0.9919354838709677,"POS/Ineffective":2,"Original Initial Date":"2026-04-15","Lead Time":17,"Deadline":"2026-05-02","New Initial Date":null,"New Deadline":null,"Status":"DONE","Comments":"LOCALES PENDIENTES SE ENCUENTRAN CLAUSURADOS PERMANENTEMENTE"}],"VELO 8MG":[{"KKAA":"AVA","PRIMARY/SECONDARY/B2B":"SECONDARY","Material":"FRANJA VELO - D. MULTICATEGORÍA","Scope":"KC","Total POS /Q":6,"POS/Q Visit":6,"POS/Q Done":6,"Progress":1,"POS/Ineffective":0,"Original Initial Date":"2026-04-20","Lead Time":null,"Deadline":"2026-05-05","New Initial Date":null,"New Deadline":null,"Status":"DONE","Comments":null},{"KKAA":"AVA","PRIMARY/SECONDARY/B2B":"SECONDARY","Material":"PARED VELO - D. MULTICATEGORÍA","Scope":"KC","Total POS /Q":6,"POS/Q Visit":6,"POS/Q Done":6,"Progress":1,"POS/Ineffective":0,"Original Initial Date":"2026-04-20","Lead Time":null,"Deadline":"2026-05-05","New Initial Date":null,"New Deadline":null,"Status":"DONE","Comments":null},{"KKAA":"AVA","PRIMARY/SECONDARY/B2B":"SECONDARY","Material":"FRANJA VELO - D. MULTICATEGORÍA","Scope":"LIMA","Total POS /Q":10,"POS/Q Visit":10,"POS/Q Done":10,"Progress":1,"POS/Ineffective":0,"Original Initial Date":"2026-04-06","Lead Time":21,"Deadline":"2026-04-27","New Initial Date":null,"New Deadline":null,"Status":"DONE","Comments":null},{"KKAA":"AVA","PRIMARY/SECONDARY/B2B":"SECONDARY","Material":"PARED VELO - D. MULTICATEGORÍA","Scope":"LIMA","Total POS /Q":10,"POS/Q Visit":10,"POS/Q Done":10,"Progress":1,"POS/Ineffective":0,"Original Initial Date":"2026-04-06","Lead Time":21,"Deadline":"2026-04-27","New Initial Date":null,"New Deadline":null,"Status":"DONE","Comments":null},{"KKAA":"AVA","PRIMARY/SECONDARY/B2B":"B2B","Material":"DIPTICO","Scope":"LIMA","Total POS /Q":7,"POS/Q Visit":7,"POS/Q Done":7,"Progress":1,"POS/Ineffective":0,"Original Initial Date":"2026-03-23","Lead Time":17,"Deadline":"2026-04-09","New Initial Date":null,"New Deadline":"2026-04-26","Status":"DONE","Comments":null},{"KKAA":"AVA","PRIMARY/SECONDARY/B2B":"B2B","Material":"MENUBOARD","Scope":"LIMA","Total POS /Q":7,"POS/Q Visit":7,"POS/Q Done":7,"Progress":1,"POS/Ineffective":0,"Original Initial Date":"2026-03-23","Lead Time":17,"Deadline":"2026-04-09","New Initial Date":null,"New Deadline":"2026-04-26","Status":"DONE","Comments":null},{"KKAA":"OXXO","PRIMARY/SECONDARY/B2B":"SECONDARY","Material":"FRANJA VELO - D. MULTICATEGORÍA","Scope":"KC","Total POS /Q":19,"POS/Q Visit":19,"POS/Q Done":19,"Progress":1,"POS/Ineffective":0,"Original Initial Date":"2026-04-20","Lead Time":null,"Deadline":"2026-05-05","New Initial Date":null,"New Deadline":null,"Status":"DONE","Comments":null},{"KKAA":"OXXO","PRIMARY/SECONDARY/B2B":"SECONDARY","Material":"PARED VELO - D. MULTICATEGORÍA","Scope":"KC","Total POS /Q":19,"POS/Q Visit":19,"POS/Q Done":19,"Progress":1,"POS/Ineffective":0,"Original Initial Date":"2026-04-20","Lead Time":null,"Deadline":"2026-05-05","New Initial Date":null,"New Deadline":null,"Status":"DONE","Comments":null},{"KKAA":"OXXO","PRIMARY/SECONDARY/B2B":"SECONDARY","Material":"FRANJA VELO - D. MULTICATEGORÍA","Scope":"LIMA","Total POS /Q":191,"POS/Q Visit":191,"POS/Q Done":182,"Progress":0.9528795811518325,"POS/Ineffective":9,"Original Initial Date":"2026-04-06","Lead Time":21,"Deadline":"2026-04-27","New Initial Date":null,"New Deadline":null,"Status":"ON GOING","Comments":null},{"KKAA":"OXXO","PRIMARY/SECONDARY/B2B":"SECONDARY","Material":"PARED VELO - D. MULTICATEGORÍA","Scope":"LIMA","Total POS /Q":191,"POS/Q Visit":191,"POS/Q Done":182,"Progress":0.9528795811518325,"POS/Ineffective":9,"Original Initial Date":"2026-04-06","Lead Time":21,"Deadline":"2026-04-27","New Initial Date":null,"New Deadline":null,"Status":"ON GOING","Comments":null},{"KKAA":"OXXO","PRIMARY/SECONDARY/B2B":"SECONDARY","Material":"FRANJA VELO - D. MULTICATEGORÍA","Scope":"NKC","Total POS /Q":3,"POS/Q Visit":3,"POS/Q Done":3,"Progress":1,"POS/Ineffective":0,"Original Initial Date":"2026-04-20","Lead Time":null,"Deadline":"2026-05-05","New Initial Date":null,"New Deadline":null,"Status":"DONE","Comments":null},{"KKAA":"OXXO","PRIMARY/SECONDARY/B2B":"SECONDARY","Material":"PARED VELO - D. MULTICATEGORÍA","Scope":"NKC","Total POS /Q":3,"POS/Q Visit":3,"POS/Q Done":3,"Progress":1,"POS/Ineffective":0,"Original Initial Date":"2026-04-20","Lead Time":null,"Deadline":"2026-05-05","New Initial Date":null,"New Deadline":null,"Status":"DONE","Comments":null},{"KKAA":"OXXO","PRIMARY/SECONDARY/B2B":"B2B","Material":"DIPTICO","Scope":"LIMA","Total POS /Q":68,"POS/Q Visit":68,"POS/Q Done":68,"Progress":1,"POS/Ineffective":0,"Original Initial Date":"2026-03-23","Lead Time":17,"Deadline":"2026-04-09","New Initial Date":null,"New Deadline":"2026-04-26","Status":"ON GOING","Comments":null},{"KKAA":"OXXO","PRIMARY/SECONDARY/B2B":"B2B","Material":"MENUBOARD","Scope":"LIMA","Total POS /Q":68,"POS/Q Visit":68,"POS/Q Done":68,"Progress":1,"POS/Ineffective":0,"Original Initial Date":"2026-03-23","Lead Time":17,"Deadline":"2026-04-09","New Initial Date":null,"New Deadline":"2026-04-26","Status":"ON GOING","Comments":null},{"KKAA":"PRIMAX","PRIMARY/SECONDARY/B2B":"PRIMARY","Material":"PLACA FACING","Scope":"KC","Total POS /Q":33,"POS/Q Visit":33,"POS/Q Done":33,"Progress":1,"POS/Ineffective":0,"Original Initial Date":"2026-04-20","Lead Time":null,"Deadline":"2026-05-05","New Initial Date":null,"New Deadline":null,"Status":"DONE","Comments":null},{"KKAA":"PRIMAX","PRIMARY/SECONDARY/B2B":"PRIMARY","Material":"PLACA NICHO","Scope":"KC","Total POS /Q":6,"POS/Q Visit":6,"POS/Q Done":6,"Progress":1,"POS/Ineffective":0,"Original Initial Date":"2026-04-20","Lead Time":null,"Deadline":"2026-05-05","New Initial Date":null,"New Deadline":null,"Status":"DONE","Comments":null},{"KKAA":"PRIMAX","PRIMARY/SECONDARY/B2B":"PRIMARY","Material":"REEL VELO 8MG","Scope":"KC","Total POS /Q":19,"POS/Q Visit":19,"POS/Q Done":19,"Progress":1,"POS/Ineffective":0,"Original Initial Date":"2026-04-20","Lead Time":null,"Deadline":"2026-05-05","New Initial Date":null,"New Deadline":null,"Status":"DONE","Comments":null},{"KKAA":"PRIMAX","PRIMARY/SECONDARY/B2B":"SECONDARY","Material":"FLAP VELO - D. MULTICATEGORÍA","Scope":"KC","Total POS /Q":39,"POS/Q Visit":39,"POS/Q Done":39,"Progress":1,"POS/Ineffective":0,"Original Initial Date":"2026-04-20","Lead Time":null,"Deadline":"2026-05-05","New Initial Date":null,"New Deadline":null,"Status":"DONE","Comments":null},{"KKAA":"PRIMAX","PRIMARY/SECONDARY/B2B":"SECONDARY","Material":"FRANJA VELO - D. MULTICATEGORÍA","Scope":"KC","Total POS /Q":39,"POS/Q Visit":39,"POS/Q Done":39,"Progress":1,"POS/Ineffective":0,"Original Initial Date":"2026-04-20","Lead Time":null,"Deadline":"2026-05-05","New Initial Date":null,"New Deadline":null,"Status":"DONE","Comments":null},{"KKAA":"PRIMAX","PRIMARY/SECONDARY/B2B":"SECONDARY","Material":"PARED VELO - D. MULTICATEGORÍA","Scope":"KC","Total POS /Q":39,"POS/Q Visit":39,"POS/Q Done":39,"Progress":1,"POS/Ineffective":0,"Original Initial Date":"2026-04-20","Lead Time":null,"Deadline":"2026-05-05","New Initial Date":null,"New Deadline":null,"Status":"DONE","Comments":null},{"KKAA":"PRIMAX","PRIMARY/SECONDARY/B2B":"PRIMARY","Material":"PLACA FACING","Scope":"LIMA","Total POS /Q":100,"POS/Q Visit":100,"POS/Q Done":83,"Progress":0.83,"POS/Ineffective":17,"Original Initial Date":"2026-04-06","Lead Time":21,"Deadline":"2026-04-27","New Initial Date":null,"New Deadline":null,"Status":"ON GOING","Comments":null},{"KKAA":"PRIMAX","PRIMARY/SECONDARY/B2B":"PRIMARY","Material":"PLACA NICHO","Scope":"LIMA","Total POS /Q":27,"POS/Q Visit":27,"POS/Q Done":23,"Progress":0.8518518518518519,"POS/Ineffective":4,"Original Initial Date":"2026-04-06","Lead Time":21,"Deadline":"2026-04-27","New Initial Date":null,"New Deadline":null,"Status":"DONE","Comments":null},{"KKAA":"PRIMAX","PRIMARY/SECONDARY/B2B":"PRIMARY","Material":"REEL VELO 8MG","Scope":"LIMA","Total POS /Q":55,"POS/Q Visit":55,"POS/Q Done":51,"Progress":0.9272727272727272,"POS/Ineffective":4,"Original Initial Date":"2026-04-06","Lead Time":21,"Deadline":"2026-04-27","New Initial Date":null,"New Deadline":null,"Status":"ON GOING","Comments":null},{"KKAA":"PRIMAX","PRIMARY/SECONDARY/B2B":"SECONDARY","Material":"FLAP VELO - D. MULTICATEGORÍA","Scope":"LIMA","Total POS /Q":113,"POS/Q Visit":113,"POS/Q Done":102,"Progress":0.9026548672566371,"POS/Ineffective":11,"Original Initial Date":"2026-04-06","Lead Time":21,"Deadline":"2026-04-27","New Initial Date":null,"New Deadline":null,"Status":"ON GOING","Comments":null},{"KKAA":"PRIMAX","PRIMARY/SECONDARY/B2B":"SECONDARY","Material":"FRANJA VELO - D. MULTICATEGORÍA","Scope":"LIMA","Total POS /Q":113,"POS/Q Visit":113,"POS/Q Done":102,"Progress":0.9026548672566371,"POS/Ineffective":11,"Original Initial Date":"2026-04-06","Lead Time":21,"Deadline":"2026-04-27","New Initial Date":null,"New Deadline":null,"Status":"ON GOING","Comments":null},{"KKAA":"PRIMAX","PRIMARY/SECONDARY/B2B":"SECONDARY","Material":"PARED VELO - D. MULTICATEGORÍA","Scope":"LIMA","Total POS /Q":113,"POS/Q Visit":113,"POS/Q Done":102,"Progress":0.9026548672566371,"POS/Ineffective":11,"Original Initial Date":"2026-04-06","Lead Time":21,"Deadline":"2026-04-27","New Initial Date":null,"New Deadline":null,"Status":"ON GOING","Comments":null},{"KKAA":"PRIMAX","PRIMARY/SECONDARY/B2B":"B2B","Material":"DIPTICO","Scope":"LIMA","Total POS /Q":42,"POS/Q Visit":42,"POS/Q Done":42,"Progress":1,"POS/Ineffective":0,"Original Initial Date":"2026-03-23","Lead Time":17,"Deadline":"2026-04-09","New Initial Date":null,"New Deadline":"2026-04-26","Status":"ON GOING","Comments":null},{"KKAA":"PRIMAX","PRIMARY/SECONDARY/B2B":"B2B","Material":"MENUBOARD","Scope":"LIMA","Total POS /Q":42,"POS/Q Visit":42,"POS/Q Done":42,"Progress":1,"POS/Ineffective":0,"Original Initial Date":"2026-03-23","Lead Time":17,"Deadline":"2026-04-09","New Initial Date":null,"New Deadline":"2026-04-26","Status":"ON GOING","Comments":null},{"KKAA":"REPSOL","PRIMARY/SECONDARY/B2B":"PRIMARY","Material":"PLACA FACING","Scope":"KC","Total POS /Q":4,"POS/Q Visit":4,"POS/Q Done":4,"Progress":1,"POS/Ineffective":0,"Original Initial Date":"2026-04-20","Lead Time":null,"Deadline":"2026-05-05","New Initial Date":null,"New Deadline":null,"Status":"DONE","Comments":null},{"KKAA":"REPSOL","PRIMARY/SECONDARY/B2B":"PRIMARY","Material":"REEL VELO 8MG","Scope":"KC","Total POS /Q":2,"POS/Q Visit":2,"POS/Q Done":2,"Progress":1,"POS/Ineffective":0,"Original Initial Date":"2026-04-20","Lead Time":null,"Deadline":"2026-05-05","New Initial Date":null,"New Deadline":null,"Status":"DONE","Comments":null},{"KKAA":"REPSOL","PRIMARY/SECONDARY/B2B":"SECONDARY","Material":"FRANJA VELO - D. MULTICATEGORÍA","Scope":"KC","Total POS /Q":4,"POS/Q Visit":4,"POS/Q Done":4,"Progress":1,"POS/Ineffective":0,"Original Initial Date":"2026-04-20","Lead Time":null,"Deadline":"2026-05-05","New Initial Date":null,"New Deadline":null,"Status":"DONE","Comments":null},{"KKAA":"REPSOL","PRIMARY/SECONDARY/B2B":"SECONDARY","Material":"PARED VELO - D. MULTICATEGORÍA","Scope":"KC","Total POS /Q":4,"POS/Q Visit":4,"POS/Q Done":4,"Progress":1,"POS/Ineffective":0,"Original Initial Date":"2026-04-20","Lead Time":null,"Deadline":"2026-05-05","New Initial Date":null,"New Deadline":null,"Status":"DONE","Comments":null},{"KKAA":"REPSOL","PRIMARY/SECONDARY/B2B":"PRIMARY","Material":"PLACA FACING","Scope":"LIMA","Total POS /Q":32,"POS/Q Visit":32,"POS/Q Done":29,"Progress":0.90625,"POS/Ineffective":3,"Original Initial Date":"2026-04-06","Lead Time":21,"Deadline":"2026-04-27","New Initial Date":null,"New Deadline":null,"Status":"ON GOING","Comments":null},{"KKAA":"REPSOL","PRIMARY/SECONDARY/B2B":"PRIMARY","Material":"PLACA NICHO","Scope":"LIMA","Total POS /Q":2,"POS/Q Visit":2,"POS/Q Done":2,"Progress":1,"POS/Ineffective":0,"Original Initial Date":"2026-04-06","Lead Time":21,"Deadline":"2026-04-27","New Initial Date":null,"New Deadline":null,"Status":"DONE","Comments":null},{"KKAA":"REPSOL","PRIMARY/SECONDARY/B2B":"PRIMARY","Material":"REEL VELO 8MG","Scope":"LIMA","Total POS /Q":34,"POS/Q Visit":34,"POS/Q Done":31,"Progress":0.9117647058823529,"POS/Ineffective":3,"Original Initial Date":"2026-04-06","Lead Time":21,"Deadline":"2026-04-27","New Initial Date":null,"New Deadline":null,"Status":"ON GOING","Comments":null},{"KKAA":"REPSOL","PRIMARY/SECONDARY/B2B":"SECONDARY","Material":"FRANJA VELO - D. MULTICATEGORÍA","Scope":"LIMA","Total POS /Q":41,"POS/Q Visit":41,"POS/Q Done":40,"Progress":0.975609756097561,"POS/Ineffective":1,"Original Initial Date":"2026-04-06","Lead Time":21,"Deadline":"2026-04-27","New Initial Date":null,"New Deadline":null,"Status":"ON GOING","Comments":null},{"KKAA":"REPSOL","PRIMARY/SECONDARY/B2B":"SECONDARY","Material":"PARED VELO - D. MULTICATEGORÍA","Scope":"LIMA","Total POS /Q":41,"POS/Q Visit":41,"POS/Q Done":40,"Progress":0.975609756097561,"POS/Ineffective":1,"Original Initial Date":"2026-04-06","Lead Time":21,"Deadline":"2026-04-27","New Initial Date":null,"New Deadline":null,"Status":"ON GOING","Comments":null},{"KKAA":"REPSOL","PRIMARY/SECONDARY/B2B":"B2B","Material":"DIPTICO","Scope":"LIMA","Total POS /Q":24,"POS/Q Visit":24,"POS/Q Done":24,"Progress":1,"POS/Ineffective":0,"Original Initial Date":"2026-03-23","Lead Time":17,"Deadline":"2026-04-09","New Initial Date":null,"New Deadline":"2026-04-26","Status":"ON GOING","Comments":null},{"KKAA":"REPSOL","PRIMARY/SECONDARY/B2B":"B2B","Material":"MENUBOARD","Scope":"LIMA","Total POS /Q":24,"POS/Q Visit":24,"POS/Q Done":24,"Progress":1,"POS/Ineffective":0,"Original Initial Date":"2026-03-23","Lead Time":17,"Deadline":"2026-04-09","New Initial Date":null,"New Deadline":"2026-04-26","Status":"ON GOING","Comments":null},{"KKAA":"TAMBO","PRIMARY/SECONDARY/B2B":"SECONDARY","Material":"FRANJA VELO - D. MULTICATEGORÍA","Scope":"KC","Total POS /Q":5,"POS/Q Visit":5,"POS/Q Done":5,"Progress":1,"POS/Ineffective":0,"Original Initial Date":"2026-04-20","Lead Time":null,"Deadline":"2026-05-05","New Initial Date":null,"New Deadline":null,"Status":"DONE","Comments":null},{"KKAA":"TAMBO","PRIMARY/SECONDARY/B2B":"SECONDARY","Material":"PARED VELO - D. MULTICATEGORÍA","Scope":"KC","Total POS /Q":5,"POS/Q Visit":5,"POS/Q Done":5,"Progress":1,"POS/Ineffective":0,"Original Initial Date":"2026-04-20","Lead Time":null,"Deadline":"2026-05-05","New Initial Date":null,"New Deadline":null,"Status":"DONE","Comments":null},{"KKAA":"TAMBO","PRIMARY/SECONDARY/B2B":"SECONDARY","Material":"FRANJA VELO - D. MULTICATEGORÍA","Scope":"LIMA","Total POS /Q":348,"POS/Q Visit":348,"POS/Q Done":325,"Progress":0.9339080459770115,"POS/Ineffective":23,"Original Initial Date":"2026-04-06","Lead Time":21,"Deadline":"2026-04-27","New Initial Date":null,"New Deadline":null,"Status":"ON GOING","Comments":null},{"KKAA":"TAMBO","PRIMARY/SECONDARY/B2B":"SECONDARY","Material":"PARED VELO - D. MULTICATEGORÍA","Scope":"LIMA","Total POS /Q":348,"POS/Q Visit":348,"POS/Q Done":325,"Progress":0.9339080459770115,"POS/Ineffective":23,"Original Initial Date":"2026-04-06","Lead Time":21,"Deadline":"2026-04-27","New Initial Date":null,"New Deadline":null,"Status":"ON GOING","Comments":null},{"KKAA":"TAMBO","PRIMARY/SECONDARY/B2B":"PRIMARY","Material":"PLACA FACING","Scope":"LIMA","Total POS /Q":34,"POS/Q Visit":34,"POS/Q Done":26,"Progress":0.7647058823529411,"POS/Ineffective":8,"Original Initial Date":"2026-04-06","Lead Time":21,"Deadline":"2026-04-27","New Initial Date":null,"New Deadline":null,"Status":"ON GOING","Comments":null},{"KKAA":"TAMBO","PRIMARY/SECONDARY/B2B":"PRIMARY","Material":"PLACA NICHO","Scope":"LIMA","Total POS /Q":27,"POS/Q Visit":27,"POS/Q Done":21,"Progress":0.7777777777777778,"POS/Ineffective":6,"Original Initial Date":"2026-04-06","Lead Time":21,"Deadline":"2026-04-27","New Initial Date":null,"New Deadline":null,"Status":"ON GOING","Comments":null},{"KKAA":"TAMBO","PRIMARY/SECONDARY/B2B":"PRIMARY","Material":"REEL VELO 8MG","Scope":"LIMA","Total POS /Q":13,"POS/Q Visit":13,"POS/Q Done":12,"Progress":0.9230769230769231,"POS/Ineffective":1,"Original Initial Date":"2026-04-06","Lead Time":21,"Deadline":"2026-04-27","New Initial Date":null,"New Deadline":null,"Status":"DONE","Comments":null},{"KKAA":"TAMBO","PRIMARY/SECONDARY/B2B":"B2B","Material":"DIPTICO","Scope":"LIMA","Total POS /Q":10,"POS/Q Visit":10,"POS/Q Done":10,"Progress":1,"POS/Ineffective":0,"Original Initial Date":"2026-03-23","Lead Time":17,"Deadline":"2026-04-09","New Initial Date":null,"New Deadline":"2026-04-26","Status":"ON GOING","Comments":null},{"KKAA":"TAMBO","PRIMARY/SECONDARY/B2B":"B2B","Material":"MENUBOARD","Scope":"LIMA","Total POS /Q":10,"POS/Q Visit":10,"POS/Q Done":10,"Progress":1,"POS/Ineffective":0,"Original Initial Date":"2026-03-23","Lead Time":17,"Deadline":"2026-04-09","New Initial Date":null,"New Deadline":"2026-04-26","Status":"ON GOING","Comments":null}],"VUSE 3K - Nuevo legal":[{"KKAA":"PRIMAX","PRIMARY/SECONDARY":"PRIMARY","Material":"PLACA DE CIGARRERA","Scope":"LIMA","Total POS /Q":10,"POS/Q Visit":10,"POS/Q Done":10,"Progress":1,"POS/Ineffective":0,"Original Initial Date":"2026-03-24","Lead Time":21,"Deadline":"2026-04-14","New Initial Date":null,"New Deadline":null,"Status":"DONE","Comments":null},{"KKAA":"PRIMAX","PRIMARY/SECONDARY":"PRIMARY","Material":"PLACA DE CIGARRERA","Scope":"KC","Total POS /Q":5,"POS/Q Visit":5,"POS/Q Done":5,"Progress":1,"POS/Ineffective":0,"Original Initial Date":"2026-04-20","Lead Time":15,"Deadline":"2026-05-05","New Initial Date":null,"New Deadline":null,"Status":"DONE","Comments":null},{"KKAA":"PRIMAX","PRIMARY/SECONDARY":"PRIMARY","Material":"PLACA DE CIGARRERA","Scope":"NKC","Total POS /Q":9,"POS/Q Visit":9,"POS/Q Done":9,"Progress":1,"POS/Ineffective":0,"Original Initial Date":"2026-04-20","Lead Time":15,"Deadline":"2026-05-05","New Initial Date":null,"New Deadline":null,"Status":"DONE","Comments":null},{"KKAA":"PRIMAX","PRIMARY/SECONDARY":"SECONDARY","Material":"STICKER VUSE - D. MULTICATEGORÍA","Scope":"LIMA","Total POS /Q":113,"POS/Q Visit":113,"POS/Q Done":101,"Progress":0.8938053097345132,"POS/Ineffective":12,"Original Initial Date":"2026-04-06","Lead Time":21,"Deadline":"2026-04-27","New Initial Date":null,"New Deadline":null,"Status":"ON GOING","Comments":null},{"KKAA":"PRIMAX","PRIMARY/SECONDARY":"SECONDARY","Material":"STICKER VUSE - D. MULTICATEGORÍA","Scope":"KC","Total POS /Q":39,"POS/Q Visit":39,"POS/Q Done":39,"Progress":1,"POS/Ineffective":0,"Original Initial Date":"2026-04-20","Lead Time":15,"Deadline":"2026-05-05","New Initial Date":null,"New Deadline":null,"Status":"DONE","Comments":null},{"KKAA":"TAMBO","PRIMARY/SECONDARY":"PRIMARY","Material":"PLACA DE CIGARRERA","Scope":"LIMA","Total POS /Q":475,"POS/Q Visit":475,"POS/Q Done":469,"Progress":0.9873684210526316,"POS/Ineffective":6,"Original Initial Date":"2026-03-24","Lead Time":21,"Deadline":"2026-04-14","New Initial Date":null,"New Deadline":null,"Status":"ON GOING","Comments":null},{"KKAA":"TAMBO","PRIMARY/SECONDARY":"PRIMARY","Material":"PLACA DE CIGARRERA","Scope":"KC","Total POS /Q":66,"POS/Q Visit":66,"POS/Q Done":65,"Progress":0.9848484848484849,"POS/Ineffective":1,"Original Initial Date":"2026-04-20","Lead Time":15,"Deadline":"2026-05-05","New Initial Date":null,"New Deadline":null,"Status":"DONE","Comments":null},{"KKAA":"TAMBO","PRIMARY/SECONDARY":"PRIMARY","Material":"PLACA DE CIGARRERA","Scope":"NKC","Total POS /Q":37,"POS/Q Visit":37,"POS/Q Done":37,"Progress":1,"POS/Ineffective":0,"Original Initial Date":"2026-04-20","Lead Time":15,"Deadline":"2026-05-05","New Initial Date":null,"New Deadline":null,"Status":"DONE","Comments":"A LA ESPERA DEL MATERIAL VELO 8MG"},{"KKAA":"TAMBO","PRIMARY/SECONDARY":"SECONDARY","Material":"FRANJA VUSE - D. VELO/VUSE","Scope":"LIMA","Total POS /Q":348,"POS/Q Visit":348,"POS/Q Done":325,"Progress":0.9339080459770115,"POS/Ineffective":23,"Original Initial Date":"2026-04-06","Lead Time":21,"Deadline":"2026-04-27","New Initial Date":null,"New Deadline":null,"Status":"ON GOING","Comments":null},{"KKAA":"TAMBO","PRIMARY/SECONDARY":"SECONDARY","Material":"FRANJA VUSE - D. VUSE/VUSE","Scope":"LIMA","Total POS /Q":207,"POS/Q Visit":155,"POS/Q Done":139,"Progress":0.6714975845410628,"POS/Ineffective":16,"Original Initial Date":"2026-04-20","Lead Time":10,"Deadline":"2026-04-30","New Initial Date":null,"New Deadline":null,"Status":"ON GOING","Comments":null},{"KKAA":"TAMBO","PRIMARY/SECONDARY":"SECONDARY","Material":"FRANJA VUSE - D. VELO/VUSE","Scope":"KC","Total POS /Q":5,"POS/Q Visit":5,"POS/Q Done":5,"Progress":1,"POS/Ineffective":0,"Original Initial Date":"2026-04-20","Lead Time":15,"Deadline":"2026-05-05","New Initial Date":null,"New Deadline":null,"Status":"DONE","Comments":null}],"VUSE":[{"KKAA":"AVA","PRIMARY/SECONDARY":"SECONDARY","Material":"ESQUINERO","Scope":"LIMA","Total POS /Q":14,"POS/Q Visit":14,"POS/Q Done":14,"Progress":1,"POS/Ineffective":0,"Original Initial Date":"2026-02-18","Lead Time":17,"Deadline":"2026-03-07","New Initial Date":null,"New Deadline":"2026-03-24","Status":"DONE","Comments":null},{"KKAA":"AVA","PRIMARY/SECONDARY":"SECONDARY","Material":"ESQUINERO","Scope":"KC","Total POS /Q":10,"POS/Q Visit":10,"POS/Q Done":10,"Progress":1,"POS/Ineffective":0,"Original Initial Date":"2026-02-18","Lead Time":17,"Deadline":"2026-03-07","New Initial Date":null,"New Deadline":"2026-03-24","Status":"DONE","Comments":null},{"KKAA":"AVA","PRIMARY/SECONDARY":"SECONDARY","Material":"ESQUINERO","Scope":"NKC","Total POS /Q":1,"POS/Q Visit":1,"POS/Q Done":1,"Progress":1,"POS/Ineffective":0,"Original Initial Date":"2026-02-18","Lead Time":17,"Deadline":"2026-03-07","New Initial Date":null,"New Deadline":"2026-03-24","Status":"DONE","Comments":null},{"KKAA":"OXXO","PRIMARY/SECONDARY":"SECONDARY","Material":"HEADER","Scope":"LIMA","Total POS /Q":189,"POS/Q Visit":189,"POS/Q Done":189,"Progress":1,"POS/Ineffective":0,"Original Initial Date":"2026-03-06","Lead Time":14,"Deadline":"2026-03-20","New Initial Date":null,"New Deadline":null,"Status":"DONE","Comments":null},{"KKAA":"OXXO","PRIMARY/SECONDARY":"SECONDARY","Material":"HEADER","Scope":"KC","Total POS /Q":20,"POS/Q Visit":20,"POS/Q Done":20,"Progress":1,"POS/Ineffective":0,"Original Initial Date":"2026-03-11","Lead Time":9,"Deadline":"2026-03-20","New Initial Date":null,"New Deadline":null,"Status":"DONE","Comments":null},{"KKAA":"OXXO","PRIMARY/SECONDARY":"SECONDARY","Material":"HEADER","Scope":"NKC","Total POS /Q":3,"POS/Q Visit":3,"POS/Q Done":3,"Progress":1,"POS/Ineffective":0,"Original Initial Date":"2026-03-11","Lead Time":8,"Deadline":"2026-03-19","New Initial Date":null,"New Deadline":null,"Status":"DONE","Comments":null},{"KKAA":"PRIMAX","PRIMARY/SECONDARY":"SECONDARY","Material":"ESQUINERO","Scope":"LIMA","Total POS /Q":107,"POS/Q Visit":107,"POS/Q Done":105,"Progress":0.9813084112149533,"POS/Ineffective":2,"Original Initial Date":"2026-02-18","Lead Time":17,"Deadline":"2026-03-07","New Initial Date":null,"New Deadline":"2026-03-24","Status":"ON GOING","Comments":"AUMENTO DE SCOPE POR CAMBIO EN EL PADRON"},{"KKAA":"PRIMAX","PRIMARY/SECONDARY":"SECONDARY","Material":"ESQUINERO","Scope":"KC","Total POS /Q":39,"POS/Q Visit":39,"POS/Q Done":38,"Progress":0.9743589743589743,"POS/Ineffective":1,"Original Initial Date":"2026-02-18","Lead Time":17,"Deadline":"2026-03-07","New Initial Date":null,"New Deadline":"2026-03-24","Status":"ON GOING","Comments":"AUMENTO DE SCOPE POR CAMBIO EN EL PADRON"},{"KKAA":"PRIMAX","PRIMARY/SECONDARY":"SECONDARY","Material":"ESQUINERO","Scope":"NKC","Total POS /Q":8,"POS/Q Visit":8,"POS/Q Done":5,"Progress":0.625,"POS/Ineffective":3,"Original Initial Date":"2026-02-18","Lead Time":17,"Deadline":"2026-03-07","New Initial Date":null,"New Deadline":"2026-03-24","Status":"ON GOING","Comments":null},{"KKAA":"TAMBO","PRIMARY/SECONDARY":"B2B","Material":"MENUBOARD","Scope":"LIMA","Total POS /Q":574,"POS/Q Visit":574,"POS/Q Done":574,"Progress":1,"POS/Ineffective":0,"Original Initial Date":"2026-01-22","Lead Time":18,"Deadline":"2026-02-09","New Initial Date":null,"New Deadline":"2026-03-30","Status":"DONE","Comments":"AUMENTO DE SCOPE POR CAMBIO EN EL PADRON"},{"KKAA":"TAMBO","PRIMARY/SECONDARY":"B2B","Material":"MENUBOARD","Scope":"KC","Total POS /Q":70,"POS/Q Visit":70,"POS/Q Done":70,"Progress":1,"POS/Ineffective":0,"Original Initial Date":"2026-01-22","Lead Time":18,"Deadline":"2026-02-09","New Initial Date":null,"New Deadline":"2026-03-30","Status":"DONE","Comments":"AUMENTO DE SCOPE POR CAMBIO EN EL PADRON"},{"KKAA":"TAMBO","PRIMARY/SECONDARY":"B2B","Material":"MENUBOARD","Scope":"NKC","Total POS /Q":40,"POS/Q Visit":40,"POS/Q Done":40,"Progress":1,"POS/Ineffective":0,"Original Initial Date":"2026-01-22","Lead Time":2,"Deadline":"2026-01-24","New Initial Date":null,"New Deadline":"2026-02-11","Status":"DONE","Comments":null},{"KKAA":"TAMBO","PRIMARY/SECONDARY":"SECONDARY","Material":"CENEFAS COUNTER","Scope":"LIMA","Total POS /Q":574,"POS/Q Visit":574,"POS/Q Done":561,"Progress":0.9773519163763066,"POS/Ineffective":13,"Original Initial Date":"2026-02-20","Lead Time":15,"Deadline":"2026-03-07","New Initial Date":null,"New Deadline":"2026-04-30","Status":"DONE","Comments":"NO SE CONTINUARÁ IMPLEMENTACIÓN POR ACUERDO CON KKAA"},{"KKAA":"TAMBO","PRIMARY/SECONDARY":"SECONDARY","Material":"CENEFAS COUNTER","Scope":"KC","Total POS /Q":70,"POS/Q Visit":70,"POS/Q Done":70,"Progress":1,"POS/Ineffective":0,"Original Initial Date":"2026-02-20","Lead Time":15,"Deadline":"2026-03-07","New Initial Date":null,"New Deadline":"2026-03-16","Status":"DONE","Comments":null},{"KKAA":"TAMBO","PRIMARY/SECONDARY":"SECONDARY","Material":"CENEFAS COUNTER","Scope":"NKC","Total POS /Q":40,"POS/Q Visit":40,"POS/Q Done":40,"Progress":1,"POS/Ineffective":0,"Original Initial Date":"2026-02-20","Lead Time":15,"Deadline":"2026-03-07","New Initial Date":null,"New Deadline":"2026-03-16","Status":"DONE","Comments":null}],"VUSE 3K":[{"KKAA":"PRIMAX","PRIMARY/SECONDARY":"SECONDARY","Material":"PLACA FACING","Scope":"LIMA","Total POS /Q":1,"POS/Q Visit":1,"POS/Q Done":0,"Progress":0,"POS/Ineffective":1,"Original Initial Date":"2026-03-11","Lead Time":6,"Deadline":"2026-03-17","New Initial Date":null,"New Deadline":null,"Status":"DONE","Comments":null},{"KKAA":"PRIMAX","PRIMARY/SECONDARY":"SECONDARY","Material":"PLACA FACING","Scope":"NKC","Total POS /Q":6,"POS/Q Visit":0,"POS/Q Done":0,"Progress":0,"POS/Ineffective":0,"Original Initial Date":"TBD","Lead Time":"-","Deadline":"TBD","New Initial Date":null,"New Deadline":null,"Status":"PENDING","Comments":"A LA ESPERA DE LLEGADA DEL MATERIAL"},{"KKAA":"REPSOL","PRIMARY/SECONDARY":"SECONDARY","Material":"PLACA FACING","Scope":"KC","Total POS /Q":3,"POS/Q Visit":0,"POS/Q Done":0,"Progress":0,"POS/Ineffective":0,"Original Initial Date":"TBD","Lead Time":"-","Deadline":"TBD","New Initial Date":null,"New Deadline":null,"Status":"PENDING","Comments":"A LA ESPERA DE LLEGADA DEL MATERIAL"},{"KKAA":"REPSOL","PRIMARY/SECONDARY":"SECONDARY","Material":"PLACA FACING","Scope":"LIMA","Total POS /Q":40,"POS/Q Visit":40,"POS/Q Done":30,"Progress":0.75,"POS/Ineffective":10,"Original Initial Date":"2026-03-11","Lead Time":6,"Deadline":"2026-03-17","New Initial Date":null,"New Deadline":"2026-03-23","Status":"DONE","Comments":null},{"KKAA":"REPSOL","PRIMARY/SECONDARY":"SECONDARY","Material":"PLACA FACING","Scope":"NKC","Total POS /Q":2,"POS/Q Visit":0,"POS/Q Done":0,"Progress":0,"POS/Ineffective":0,"Original Initial Date":"TBD","Lead Time":"-","Deadline":"TBD","New Initial Date":null,"New Deadline":null,"Status":"PENDING","Comments":"A LA ESPERA DE LLEGADA DEL MATERIAL"},{"KKAA":"TAMBO","PRIMARY/SECONDARY":"PRIMARY","Material":"PLACA DE CIGARRERA","Scope":"KC","Total POS /Q":65,"POS/Q Visit":65,"POS/Q Done":65,"Progress":1,"POS/Ineffective":0,"Original Initial Date":"2026-01-22","Lead Time":2,"Deadline":"2026-01-24","New Initial Date":null,"New Deadline":null,"Status":"DONE","Comments":null},{"KKAA":"TAMBO","PRIMARY/SECONDARY":"PRIMARY","Material":"PLACA DE CIGARRERA","Scope":"LIMA","Total POS /Q":460,"POS/Q Visit":460,"POS/Q Done":460,"Progress":1,"POS/Ineffective":0,"Original Initial Date":"2026-01-12","Lead Time":16,"Deadline":"2026-01-28","New Initial Date":null,"New Deadline":"2026-02-11","Status":"DONE","Comments":null},{"KKAA":"TAMBO","PRIMARY/SECONDARY":"PRIMARY","Material":"PLACA DE CIGARRERA","Scope":"NKC","Total POS /Q":36,"POS/Q Visit":36,"POS/Q Done":34,"Progress":0.9444444444444444,"POS/Ineffective":2,"Original Initial Date":"2026-01-22","Lead Time":2,"Deadline":"2026-01-24","New Initial Date":null,"New Deadline":"2026-02-11","Status":"DONE","Comments":null},{"KKAA":"TAMBO","PRIMARY/SECONDARY":"B2B","Material":"DIPTICO","Scope":"KC","Total POS /Q":70,"POS/Q Visit":70,"POS/Q Done":68,"Progress":0.9714285714285714,"POS/Ineffective":2,"Original Initial Date":"2026-01-26","Lead Time":17,"Deadline":"2026-02-12","New Initial Date":null,"New Deadline":"2026-05-01","Status":"ON GOING","Comments":"AUMENTO DE SCOPE POR CAMBIO EN EL PADRON"},{"KKAA":"TAMBO","PRIMARY/SECONDARY":"B2B","Material":"DIPTICO","Scope":"LIMA","Total POS /Q":574,"POS/Q Visit":574,"POS/Q Done":533,"Progress":0.9285714285714286,"POS/Ineffective":41,"Original Initial Date":"2026-01-26","Lead Time":17,"Deadline":"2026-02-12","New Initial Date":null,"New Deadline":"2026-05-01","Status":"ON GOING","Comments":"AUMENTO DE SCOPE POR CAMBIO EN EL PADRON"},{"KKAA":"TAMBO","PRIMARY/SECONDARY":"B2B","Material":"DIPTICO","Scope":"NKC","Total POS /Q":40,"POS/Q Visit":40,"POS/Q Done":37,"Progress":0.925,"POS/Ineffective":3,"Original Initial Date":"2026-01-26","Lead Time":17,"Deadline":"2026-02-12","New Initial Date":null,"New Deadline":"2026-05-01","Status":"ON GOING","Comments":null},{"KKAA":"TAMBO","PRIMARY/SECONDARY":"SECONDARY","Material":"DISPENSER VUSE/VUSE","Scope":"KC","Total POS /Q":65,"POS/Q Visit":0,"POS/Q Done":0,"Progress":0,"POS/Ineffective":0,"Original Initial Date":"TBD","Lead Time":"-","Deadline":"TBD","New Initial Date":null,"New Deadline":null,"Status":"PENDING","Comments":"A LA ESPERA DE LLEGADA DEL MATERIAL"},{"KKAA":"TAMBO","PRIMARY/SECONDARY":"SECONDARY","Material":"DISPENSER VUSE/VUSE","Scope":"LIMA","Total POS /Q":207,"POS/Q Visit":207,"POS/Q Done":207,"Progress":1,"POS/Ineffective":0,"Original Initial Date":"2026-01-13","Lead Time":13,"Deadline":"2026-01-26","New Initial Date":null,"New Deadline":"2026-04-15","Status":"DONE","Comments":null},{"KKAA":"TAMBO","PRIMARY/SECONDARY":"SECONDARY","Material":"DISPENSER VUSE/VUSE","Scope":"NKC","Total POS /Q":29,"POS/Q Visit":0,"POS/Q Done":0,"Progress":0,"POS/Ineffective":0,"Original Initial Date":"TBD","Lead Time":"-","Deadline":"TBD","New Initial Date":null,"New Deadline":null,"Status":"PENDING","Comments":"A LA ESPERA DE LLEGADA DEL MATERIAL"},{"KKAA":"TAMBO","PRIMARY/SECONDARY":"SECONDARY","Material":"PLACA DE DISPENSER","Scope":"KC","Total POS /Q":65,"POS/Q Visit":59,"POS/Q Done":59,"Progress":0.9076923076923077,"POS/Ineffective":0,"Original Initial Date":"2026-01-12","Lead Time":16,"Deadline":"2026-01-28","New Initial Date":null,"New Deadline":"2026-02-11","Status":"ON GOING","Comments":null},{"KKAA":"TAMBO","PRIMARY/SECONDARY":"SECONDARY","Material":"PLACA DE DISPENSER","Scope":"LIMA","Total POS /Q":61,"POS/Q Visit":61,"POS/Q Done":58,"Progress":0.9508196721311475,"POS/Ineffective":3,"Original Initial Date":"2026-01-12","Lead Time":16,"Deadline":"2026-01-28","New Initial Date":null,"New Deadline":"2026-02-11","Status":"DONE","Comments":null},{"KKAA":"TAMBO","PRIMARY/SECONDARY":"SECONDARY","Material":"PLACA DE DISPENSER","Scope":"NKC","Total POS /Q":29,"POS/Q Visit":21,"POS/Q Done":21,"Progress":0.7241379310344828,"POS/Ineffective":0,"Original Initial Date":"2026-01-12","Lead Time":16,"Deadline":"2026-01-28","New Initial Date":null,"New Deadline":"2026-02-11","Status":"ON GOING","Comments":null},{"KKAA":"TAMBO","PRIMARY/SECONDARY":"SECONDARY","Material":"PLACA FACING","Scope":"KC","Total POS /Q":1,"POS/Q Visit":1,"POS/Q Done":1,"Progress":1,"POS/Ineffective":0,"Original Initial Date":"2026-03-11","Lead Time":1,"Deadline":"2026-03-12","New Initial Date":null,"New Deadline":null,"Status":"DONE","Comments":"A LA ESPERA DE LLEGADA DEL MATERIAL"},{"KKAA":"TAMBO","PRIMARY/SECONDARY":"SECONDARY","Material":"PLACA FACING","Scope":"LIMA","Total POS /Q":5,"POS/Q Visit":5,"POS/Q Done":5,"Progress":1,"POS/Ineffective":0,"Original Initial Date":"2026-03-11","Lead Time":1,"Deadline":"2026-03-12","New Initial Date":null,"New Deadline":null,"Status":"DONE","Comments":null},{"KKAA":"TAMBO","PRIMARY/SECONDARY":"SECONDARY","Material":"TABLE TENT","Scope":"KC","Total POS /Q":70,"POS/Q Visit":70,"POS/Q Done":68,"Progress":0.9714285714285714,"POS/Ineffective":2,"Original Initial Date":"2026-01-22","Lead Time":18,"Deadline":"2026-02-09","New Initial Date":null,"New Deadline":"2026-05-31","Status":"ON GOING","Comments":"AUMENTO DE SCOPE POR CAMBIO EN EL PADRON"},{"KKAA":"TAMBO","PRIMARY/SECONDARY":"SECONDARY","Material":"TABLE TENT","Scope":"LIMA","Total POS /Q":574,"POS/Q Visit":574,"POS/Q Done":568,"Progress":0.9895470383275261,"POS/Ineffective":6,"Original Initial Date":"2026-01-22","Lead Time":18,"Deadline":"2026-02-09","New Initial Date":null,"New Deadline":"2026-05-31","Status":"ON GOING","Comments":"AUMENTO DE SCOPE POR CAMBIO EN EL PADRON"},{"KKAA":"TAMBO","PRIMARY/SECONDARY":"SECONDARY","Material":"TABLE TENT","Scope":"NKC","Total POS /Q":40,"POS/Q Visit":40,"POS/Q Done":39,"Progress":0.975,"POS/Ineffective":1,"Original Initial Date":"2026-01-22","Lead Time":18,"Deadline":"2026-02-09","New Initial Date":null,"New Deadline":"2026-05-31","Status":"ON GOING","Comments":null}],"LS CORE":[{"KKAA":"AVA","PRIMARY/SECONDARY":"SECONDARY","Material":"TABLE TENT","Scope":"LIMA","Total POS /Q":15,"POS/Q Visit":15,"POS/Q Done":15,"Progress":1,"POS/Ineffective":0,"Original Initial Date":"2026-04-01","Lead Time":17,"Deadline":"2026-04-18","New Initial Date":null,"New Deadline":null,"Status":"DONE","Comments":null},{"KKAA":"AVA","PRIMARY/SECONDARY":"SECONDARY","Material":"TABLE TENT","Scope":"KC","Total POS /Q":10,"POS/Q Visit":10,"POS/Q Done":10,"Progress":1,"POS/Ineffective":0,"Original Initial Date":"2026-04-01","Lead Time":17,"Deadline":"2026-04-18","New Initial Date":null,"New Deadline":null,"Status":"DONE","Comments":null},{"KKAA":"AVA","PRIMARY/SECONDARY":"SECONDARY","Material":"TABLE TENT","Scope":"NKC","Total POS /Q":1,"POS/Q Visit":1,"POS/Q Done":1,"Progress":1,"POS/Ineffective":0,"Original Initial Date":"2026-04-01","Lead Time":17,"Deadline":"2026-04-18","New Initial Date":null,"New Deadline":null,"Status":"DONE","Comments":null},{"KKAA":"OXXO","PRIMARY/SECONDARY":"SECONDARY","Material":"VIBRIN","Scope":"LIMA","Total POS /Q":66,"POS/Q Visit":66,"POS/Q Done":66,"Progress":1,"POS/Ineffective":0,"Original Initial Date":"2026-03-06","Lead Time":14,"Deadline":"2026-03-20","New Initial Date":null,"New Deadline":null,"Status":"DONE","Comments":null},{"KKAA":"OXXO","PRIMARY/SECONDARY":"SECONDARY","Material":"VIBRIN","Scope":"KC","Total POS /Q":1,"POS/Q Visit":1,"POS/Q Done":1,"Progress":1,"POS/Ineffective":0,"Original Initial Date":"2026-03-11","Lead Time":9,"Deadline":"2026-03-20","New Initial Date":null,"New Deadline":null,"Status":"DONE","Comments":null},{"KKAA":"OXXO","PRIMARY/SECONDARY":"SECONDARY","Material":"VIBRIN","Scope":"NKC","Total POS /Q":3,"POS/Q Visit":3,"POS/Q Done":3,"Progress":1,"POS/Ineffective":0,"Original Initial Date":"2026-03-11","Lead Time":8,"Deadline":"2026-03-19","New Initial Date":null,"New Deadline":null,"Status":"DONE","Comments":null},{"KKAA":"PRIMAX","PRIMARY/SECONDARY":"SECONDARY","Material":"STICKER COUNTER","Scope":"LIMA","Total POS /Q":53,"POS/Q Visit":53,"POS/Q Done":47,"Progress":0.8867924528301887,"POS/Ineffective":6,"Original Initial Date":"2026-03-06","Lead Time":14,"Deadline":"2026-03-20","New Initial Date":null,"New Deadline":"2026-05-10","Status":"DONE","Comments":"NO SE CONTINUARÁ IMPLEMENTACIÓN POR ACUERDO CON KKAA"},{"KKAA":"PRIMAX","PRIMARY/SECONDARY":"SECONDARY","Material":"STICKER COUNTER","Scope":"KC","Total POS /Q":27,"POS/Q Visit":27,"POS/Q Done":27,"Progress":1,"POS/Ineffective":0,"Original Initial Date":"2026-03-11","Lead Time":16,"Deadline":"2026-03-27","New Initial Date":null,"New Deadline":null,"Status":"DONE","Comments":null},{"KKAA":"PRIMAX","PRIMARY/SECONDARY":"SECONDARY","Material":"STICKER COUNTER","Scope":"NKC","Total POS /Q":3,"POS/Q Visit":3,"POS/Q Done":3,"Progress":1,"POS/Ineffective":0,"Original Initial Date":"2026-03-11","Lead Time":9,"Deadline":"2026-03-20","New Initial Date":null,"New Deadline":null,"Status":"DONE","Comments":"CORRECCIÓN DE SCOPE. NO SE INCLUIRÁ IQUITOS EN EL SCOPE."},{"KKAA":"REPSOL","PRIMARY/SECONDARY":"SECONDARY","Material":"STICKER COUNTER","Scope":"LIMA","Total POS /Q":59,"POS/Q Visit":29,"POS/Q Done":27,"Progress":0.4576271186440678,"POS/Ineffective":2,"Original Initial Date":"2026-05-12","Lead Time":3,"Deadline":"2026-05-15","New Initial Date":null,"New Deadline":null,"Status":"ON GOING","Comments":null},{"KKAA":"REPSOL","PRIMARY/SECONDARY":"SECONDARY","Material":"STICKER COUNTER","Scope":"KC","Total POS /Q":4,"POS/Q Visit":0,"POS/Q Done":0,"Progress":0,"POS/Ineffective":0,"Original Initial Date":"2026-05-12","Lead Time":3,"Deadline":"2026-05-15","New Initial Date":null,"New Deadline":null,"Status":"ON GOING","Comments":null},{"KKAA":"REPSOL","PRIMARY/SECONDARY":"SECONDARY","Material":"STICKER COUNTER","Scope":"NKC","Total POS /Q":2,"POS/Q Visit":0,"POS/Q Done":0,"Progress":0,"POS/Ineffective":0,"Original Initial Date":"2026-05-12","Lead Time":3,"Deadline":"2026-05-15","New Initial Date":null,"New Deadline":null,"Status":"ON GOING","Comments":null}],"ECLIPSE":[{"KKAA":"BODEGAS","PRIMARY/SECONDARY":"PRIMARY","Material":"PLACA DE CIGARRERA","Scope":"KC","Total POS /Q":917,"POS/Q Visit":913,"POS/Q Done":518,"Progress":0.5648854961832062,"POS/Ineffective":395,"Original Initial Date":"2025-12-03","Lead Time":27,"Deadline":"2025-12-30","New Initial Date":null,"New Deadline":null,"Status":"PENDING","Comments":"PENDIENTE MATERIAL"},{"KKAA":"BODEGAS","PRIMARY/SECONDARY":"PRIMARY","Material":"PLACA DE CIGARRERA","Scope":"NKC","Total POS /Q":220,"POS/Q Visit":218,"POS/Q Done":121,"Progress":0.55,"POS/Ineffective":97,"Original Initial Date":"2025-12-03","Lead Time":27,"Deadline":"2025-12-30","New Initial Date":null,"New Deadline":null,"Status":"PENDING","Comments":"PENDIENTE MATERIAL"},{"KKAA":"TAMBO","PRIMARY/SECONDARY":"PRIMARY","Material":"PLACA DE CIGARRERA","Scope":"NKC","Total POS /Q":6,"POS/Q Visit":6,"POS/Q Done":5,"Progress":0.8333333333333334,"POS/Ineffective":1,"Original Initial Date":"2025-12-03","Lead Time":7,"Deadline":"2025-12-10","New Initial Date":null,"New Deadline":null,"Status":"ON GOING","Comments":null},{"KKAA":"TAMBO","PRIMARY/SECONDARY":"SECONDARY","Material":"TABLE TENT","Scope":"LIMA","Total POS /Q":573,"POS/Q Visit":573,"POS/Q Done":564,"Progress":0.9842931937172775,"POS/Ineffective":9,"Original Initial Date":"2026-01-20","Lead Time":17,"Deadline":"2026-02-06","New Initial Date":null,"New Deadline":"2026-05-31","Status":"ON GOING","Comments":"REDUCCION DE SCOPE POR CAMBIO EN EL PADRON POR LOCAL CLAUSURADO"}]};
+const DATA = {
+  "CROSS": [
+    {"material":"TABLE TENT","category":"Secondary POP","total_pos":27,"pos_visit":27,"pos_done":27,"init_date":"2026-04-15","deadline":"2026-05-02","new_deadline":null},
+    {"material":"TABLE TENT","category":"Secondary POP","total_pos":3,"pos_visit":3,"pos_done":3,"init_date":"2026-04-20","deadline":"2026-05-02","new_deadline":null},
+    {"material":"TABLE TENT","category":"Secondary POP","total_pos":1,"pos_visit":1,"pos_done":1,"init_date":"2026-04-20","deadline":"2026-05-02","new_deadline":null},
+    {"material":"VIBRIN","category":"Secondary POP","total_pos":62,"pos_visit":62,"pos_done":62,"init_date":"2026-04-15","deadline":"2026-05-02","new_deadline":null},
+    {"material":"VIBRIN","category":"Secondary POP","total_pos":7,"pos_visit":7,"pos_done":7,"init_date":"2026-04-20","deadline":"2026-05-02","new_deadline":null},
+    {"material":"TABLE TENT","category":"Secondary POP","total_pos":248,"pos_visit":248,"pos_done":246,"init_date":"2026-04-15","deadline":"2026-05-02","new_deadline":null}
+  ],
+  "VELO 8MG": [
+    {"material":"FRANJA VELO - D. MULTICATEGORÍA","category":"Secondary POP","total_pos":6,"pos_visit":6,"pos_done":6,"init_date":"2026-04-20","deadline":"2026-05-05","new_deadline":null},
+    {"material":"PARED VELO - D. MULTICATEGORÍA","category":"Secondary POP","total_pos":6,"pos_visit":6,"pos_done":6,"init_date":"2026-04-20","deadline":"2026-05-05","new_deadline":null},
+    {"material":"FRANJA VELO - D. MULTICATEGORÍA","category":"Secondary POP","total_pos":10,"pos_visit":10,"pos_done":10,"init_date":"2026-04-06","deadline":"2026-04-27","new_deadline":null},
+    {"material":"PARED VELO - D. MULTICATEGORÍA","category":"Secondary POP","total_pos":10,"pos_visit":10,"pos_done":10,"init_date":"2026-04-06","deadline":"2026-04-27","new_deadline":null},
+    {"material":"DIPTICO","category":"B2B Material","total_pos":7,"pos_visit":7,"pos_done":7,"init_date":"2026-03-23","deadline":"2026-04-09","new_deadline":"2026-04-26"},
+    {"material":"MENUBOARD","category":"B2B Material","total_pos":7,"pos_visit":7,"pos_done":7,"init_date":"2026-03-23","deadline":"2026-04-09","new_deadline":"2026-04-26"},
+    {"material":"FRANJA VELO - D. MULTICATEGORÍA","category":"Secondary POP","total_pos":19,"pos_visit":19,"pos_done":19,"init_date":"2026-04-20","deadline":"2026-05-05","new_deadline":null},
+    {"material":"PARED VELO - D. MULTICATEGORÍA","category":"Secondary POP","total_pos":19,"pos_visit":19,"pos_done":19,"init_date":"2026-04-20","deadline":"2026-05-05","new_deadline":null},
+    {"material":"FRANJA VELO - D. MULTICATEGORÍA","category":"Secondary POP","total_pos":189,"pos_visit":189,"pos_done":188,"init_date":"2026-04-06","deadline":"2026-04-27","new_deadline":null},
+    {"material":"PARED VELO - D. MULTICATEGORÍA","category":"Secondary POP","total_pos":189,"pos_visit":189,"pos_done":188,"init_date":"2026-04-06","deadline":"2026-04-27","new_deadline":null},
+    {"material":"FRANJA VELO - D. MULTICATEGORÍA","category":"Secondary POP","total_pos":3,"pos_visit":3,"pos_done":3,"init_date":"2026-04-20","deadline":"2026-05-05","new_deadline":null},
+    {"material":"PARED VELO - D. MULTICATEGORÍA","category":"Secondary POP","total_pos":3,"pos_visit":3,"pos_done":3,"init_date":"2026-04-20","deadline":"2026-05-05","new_deadline":null},
+    {"material":"DIPTICO","category":"B2B Material","total_pos":68,"pos_visit":68,"pos_done":68,"init_date":"2026-03-23","deadline":"2026-04-09","new_deadline":"2026-04-26"},
+    {"material":"MENUBOARD","category":"B2B Material","total_pos":68,"pos_visit":68,"pos_done":68,"init_date":"2026-03-23","deadline":"2026-04-09","new_deadline":"2026-04-26"},
+    {"material":"PLACA FACING","category":"Primary POP","total_pos":33,"pos_visit":33,"pos_done":33,"init_date":"2026-04-20","deadline":"2026-05-05","new_deadline":null},
+    {"material":"PLACA NICHO","category":"Primary POP","total_pos":6,"pos_visit":6,"pos_done":6,"init_date":"2026-04-20","deadline":"2026-05-05","new_deadline":null},
+    {"material":"REEL VELO 8MG","category":"Primary POP","total_pos":19,"pos_visit":19,"pos_done":19,"init_date":"2026-04-20","deadline":"2026-05-05","new_deadline":null},
+    {"material":"FLAP VELO - D. MULTICATEGORÍA","category":"Secondary POP","total_pos":39,"pos_visit":39,"pos_done":39,"init_date":"2026-04-20","deadline":"2026-05-05","new_deadline":null},
+    {"material":"FRANJA VELO - D. MULTICATEGORÍA","category":"Secondary POP","total_pos":39,"pos_visit":39,"pos_done":39,"init_date":"2026-04-20","deadline":"2026-05-05","new_deadline":null},
+    {"material":"PARED VELO - D. MULTICATEGORÍA","category":"Secondary POP","total_pos":39,"pos_visit":39,"pos_done":39,"init_date":"2026-04-20","deadline":"2026-05-05","new_deadline":null},
+    {"material":"PLACA FACING","category":"Primary POP","total_pos":99,"pos_visit":99,"pos_done":94,"init_date":"2026-04-06","deadline":"2026-04-27","new_deadline":null},
+    {"material":"PLACA NICHO","category":"Primary POP","total_pos":27,"pos_visit":27,"pos_done":25,"init_date":"2026-04-06","deadline":"2026-04-27","new_deadline":null},
+    {"material":"REEL VELO 8MG","category":"Primary POP","total_pos":55,"pos_visit":55,"pos_done":53,"init_date":"2026-04-06","deadline":"2026-04-27","new_deadline":null},
+    {"material":"FLAP VELO - D. MULTICATEGORÍA","category":"Secondary POP","total_pos":112,"pos_visit":112,"pos_done":106,"init_date":"2026-04-06","deadline":"2026-04-27","new_deadline":null},
+    {"material":"FRANJA VELO - D. MULTICATEGORÍA","category":"Secondary POP","total_pos":112,"pos_visit":112,"pos_done":106,"init_date":"2026-04-06","deadline":"2026-04-27","new_deadline":null},
+    {"material":"PARED VELO - D. MULTICATEGORÍA","category":"Secondary POP","total_pos":112,"pos_visit":112,"pos_done":106,"init_date":"2026-04-06","deadline":"2026-04-27","new_deadline":null},
+    {"material":"DIPTICO","category":"B2B Material","total_pos":42,"pos_visit":42,"pos_done":42,"init_date":"2026-03-23","deadline":"2026-04-09","new_deadline":"2026-04-26"},
+    {"material":"MENUBOARD","category":"B2B Material","total_pos":42,"pos_visit":42,"pos_done":42,"init_date":"2026-03-23","deadline":"2026-04-09","new_deadline":"2026-04-26"},
+    {"material":"PLACA FACING","category":"Primary POP","total_pos":4,"pos_visit":4,"pos_done":4,"init_date":"2026-04-20","deadline":"2026-05-05","new_deadline":null},
+    {"material":"REEL VELO 8MG","category":"Primary POP","total_pos":2,"pos_visit":2,"pos_done":2,"init_date":"2026-04-20","deadline":"2026-05-05","new_deadline":null},
+    {"material":"FRANJA VELO - D. MULTICATEGORÍA","category":"Secondary POP","total_pos":4,"pos_visit":4,"pos_done":4,"init_date":"2026-04-20","deadline":"2026-05-05","new_deadline":null},
+    {"material":"PARED VELO - D. MULTICATEGORÍA","category":"Secondary POP","total_pos":4,"pos_visit":4,"pos_done":4,"init_date":"2026-04-20","deadline":"2026-05-05","new_deadline":null},
+    {"material":"PLACA FACING","category":"Primary POP","total_pos":32,"pos_visit":32,"pos_done":30,"init_date":"2026-04-06","deadline":"2026-04-27","new_deadline":null},
+    {"material":"PLACA NICHO","category":"Primary POP","total_pos":2,"pos_visit":2,"pos_done":2,"init_date":"2026-04-06","deadline":"2026-04-27","new_deadline":null},
+    {"material":"REEL VELO 8MG","category":"Primary POP","total_pos":34,"pos_visit":34,"pos_done":32,"init_date":"2026-04-06","deadline":"2026-04-27","new_deadline":null},
+    {"material":"FRANJA VELO - D. MULTICATEGORÍA","category":"Secondary POP","total_pos":41,"pos_visit":41,"pos_done":40,"init_date":"2026-04-06","deadline":"2026-04-27","new_deadline":null},
+    {"material":"PARED VELO - D. MULTICATEGORÍA","category":"Secondary POP","total_pos":41,"pos_visit":41,"pos_done":40,"init_date":"2026-04-06","deadline":"2026-04-27","new_deadline":null},
+    {"material":"DIPTICO","category":"B2B Material","total_pos":24,"pos_visit":24,"pos_done":24,"init_date":"2026-03-23","deadline":"2026-04-09","new_deadline":"2026-04-26"},
+    {"material":"MENUBOARD","category":"B2B Material","total_pos":24,"pos_visit":24,"pos_done":24,"init_date":"2026-03-23","deadline":"2026-04-09","new_deadline":"2026-04-26"},
+    {"material":"FRANJA VELO - D. MULTICATEGORÍA","category":"Secondary POP","total_pos":5,"pos_visit":5,"pos_done":5,"init_date":"2026-04-20","deadline":"2026-05-05","new_deadline":null},
+    {"material":"PARED VELO - D. MULTICATEGORÍA","category":"Secondary POP","total_pos":5,"pos_visit":5,"pos_done":5,"init_date":"2026-04-20","deadline":"2026-05-05","new_deadline":null},
+    {"material":"FRANJA VELO - D. MULTICATEGORÍA","category":"Secondary POP","total_pos":348,"pos_visit":348,"pos_done":333,"init_date":"2026-04-06","deadline":"2026-04-27","new_deadline":null},
+    {"material":"PARED VELO - D. MULTICATEGORÍA","category":"Secondary POP","total_pos":348,"pos_visit":348,"pos_done":333,"init_date":"2026-04-06","deadline":"2026-04-27","new_deadline":null},
+    {"material":"PLACAS HONEYCOMBS","category":"Secondary POP","total_pos":10,"pos_visit":10,"pos_done":10,"init_date":"2026-05-19","deadline":"2026-05-20","new_deadline":null},
+    {"material":"PLACA FACING","category":"Primary POP","total_pos":34,"pos_visit":34,"pos_done":32,"init_date":"2026-04-06","deadline":"2026-04-27","new_deadline":null},
+    {"material":"PLACA NICHO","category":"Primary POP","total_pos":27,"pos_visit":27,"pos_done":26,"init_date":"2026-04-06","deadline":"2026-04-27","new_deadline":null},
+    {"material":"REEL VELO 8MG","category":"Primary POP","total_pos":13,"pos_visit":13,"pos_done":12,"init_date":"2026-04-06","deadline":"2026-04-27","new_deadline":null},
+    {"material":"DIPTICO","category":"B2B Material","total_pos":10,"pos_visit":10,"pos_done":10,"init_date":"2026-03-23","deadline":"2026-04-09","new_deadline":"2026-04-26"},
+    {"material":"MENUBOARD","category":"B2B Material","total_pos":10,"pos_visit":10,"pos_done":10,"init_date":"2026-03-23","deadline":"2026-04-09","new_deadline":"2026-04-26"}
+  ],
+  "VUSE 3K - Nuevo legal": [
+    {"material":"PLACA DE CIGARRERA","category":"Primary POP","total_pos":10,"pos_visit":10,"pos_done":10,"init_date":"2026-03-24","deadline":"2026-04-14","new_deadline":null},
+    {"material":"PLACA DE CIGARRERA","category":"Primary POP","total_pos":5,"pos_visit":5,"pos_done":5,"init_date":"2026-04-20","deadline":"2026-05-05","new_deadline":null},
+    {"material":"PLACA DE CIGARRERA","category":"Primary POP","total_pos":9,"pos_visit":9,"pos_done":9,"init_date":"2026-04-20","deadline":"2026-05-05","new_deadline":null},
+    {"material":"STICKER VUSE - D. MULTICATEGORÍA","category":"Secondary POP","total_pos":112,"pos_visit":112,"pos_done":106,"init_date":"2026-04-06","deadline":"2026-04-27","new_deadline":null},
+    {"material":"STICKER VUSE - D. MULTICATEGORÍA","category":"Secondary POP","total_pos":39,"pos_visit":39,"pos_done":39,"init_date":"2026-04-20","deadline":"2026-05-05","new_deadline":null},
+    {"material":"PLACA DE CIGARRERA","category":"Primary POP","total_pos":475,"pos_visit":475,"pos_done":469,"init_date":"2026-03-24","deadline":"2026-04-14","new_deadline":null},
+    {"material":"PLACA DE CIGARRERA","category":"Primary POP","total_pos":66,"pos_visit":66,"pos_done":65,"init_date":"2026-04-20","deadline":"2026-05-05","new_deadline":null},
+    {"material":"PLACA DE CIGARRERA","category":"Primary POP","total_pos":37,"pos_visit":37,"pos_done":37,"init_date":"2026-04-20","deadline":"2026-05-05","new_deadline":null},
+    {"material":"FRANJA VUSE - D. VELO/VUSE","category":"Secondary POP","total_pos":348,"pos_visit":348,"pos_done":333,"init_date":"2026-04-06","deadline":"2026-04-27","new_deadline":null},
+    {"material":"FRANJA VUSE - D. VUSE/VUSE","category":"Secondary POP","total_pos":207,"pos_visit":190,"pos_done":169,"init_date":"2026-04-20","deadline":"2026-04-30","new_deadline":null},
+    {"material":"FRANJA VUSE - D. VELO/VUSE","category":"Secondary POP","total_pos":5,"pos_visit":5,"pos_done":5,"init_date":"2026-04-20","deadline":"2026-05-05","new_deadline":null}
+  ],
+  "VUSE": [
+    {"material":"ESQUINERO","category":"Secondary POP","total_pos":14,"pos_visit":14,"pos_done":14,"init_date":"2026-02-18","deadline":"2026-03-07","new_deadline":"2026-03-24"},
+    {"material":"ESQUINERO","category":"Secondary POP","total_pos":10,"pos_visit":10,"pos_done":10,"init_date":"2026-02-18","deadline":"2026-03-07","new_deadline":"2026-03-24"},
+    {"material":"ESQUINERO","category":"Secondary POP","total_pos":1,"pos_visit":1,"pos_done":1,"init_date":"2026-02-18","deadline":"2026-03-07","new_deadline":"2026-03-24"},
+    {"material":"HEADER","category":"Secondary POP","total_pos":189,"pos_visit":189,"pos_done":189,"init_date":"2026-03-06","deadline":"2026-03-20","new_deadline":null},
+    {"material":"HEADER","category":"Secondary POP","total_pos":20,"pos_visit":20,"pos_done":20,"init_date":"2026-03-11","deadline":"2026-03-20","new_deadline":null},
+    {"material":"HEADER","category":"Secondary POP","total_pos":3,"pos_visit":3,"pos_done":3,"init_date":"2026-03-11","deadline":"2026-03-19","new_deadline":null},
+    {"material":"ESQUINERO","category":"Secondary POP","total_pos":107,"pos_visit":107,"pos_done":105,"init_date":"2026-02-18","deadline":"2026-03-07","new_deadline":"2026-03-24"},
+    {"material":"ESQUINERO","category":"Secondary POP","total_pos":39,"pos_visit":39,"pos_done":38,"init_date":"2026-02-18","deadline":"2026-03-07","new_deadline":"2026-03-24"},
+    {"material":"ESQUINERO","category":"Secondary POP","total_pos":8,"pos_visit":8,"pos_done":5,"init_date":"2026-02-18","deadline":"2026-03-07","new_deadline":"2026-03-24"},
+    {"material":"MENUBOARD","category":"B2B Material","total_pos":574,"pos_visit":574,"pos_done":574,"init_date":"2026-01-22","deadline":"2026-02-09","new_deadline":"2026-03-30"},
+    {"material":"MENUBOARD","category":"B2B Material","total_pos":70,"pos_visit":70,"pos_done":70,"init_date":"2026-01-22","deadline":"2026-02-09","new_deadline":"2026-03-30"},
+    {"material":"MENUBOARD","category":"B2B Material","total_pos":40,"pos_visit":40,"pos_done":40,"init_date":"2026-01-22","deadline":"2026-01-24","new_deadline":"2026-02-11"},
+    {"material":"CENEFAS COUNTER","category":"Secondary POP","total_pos":574,"pos_visit":574,"pos_done":561,"init_date":"2026-02-20","deadline":"2026-03-07","new_deadline":"2026-04-30"},
+    {"material":"CENEFAS COUNTER","category":"Secondary POP","total_pos":70,"pos_visit":70,"pos_done":70,"init_date":"2026-02-20","deadline":"2026-03-07","new_deadline":"2026-03-16"},
+    {"material":"CENEFAS COUNTER","category":"Secondary POP","total_pos":40,"pos_visit":40,"pos_done":40,"init_date":"2026-02-20","deadline":"2026-03-07","new_deadline":"2026-03-16"}
+  ],
+  "VUSE 3K": [
+    {"material":"PLACA FACING","category":"Secondary POP","total_pos":1,"pos_visit":1,"pos_done":0,"init_date":"2026-03-11","deadline":"2026-03-17","new_deadline":null},
+    {"material":"PLACA FACING","category":"Secondary POP","total_pos":6,"pos_visit":0,"pos_done":0,"init_date":null,"deadline":null,"new_deadline":null},
+    {"material":"PLACA FACING","category":"Secondary POP","total_pos":3,"pos_visit":0,"pos_done":0,"init_date":null,"deadline":null,"new_deadline":null},
+    {"material":"PLACA FACING","category":"Secondary POP","total_pos":40,"pos_visit":40,"pos_done":30,"init_date":"2026-03-11","deadline":"2026-03-17","new_deadline":"2026-03-23"},
+    {"material":"PLACA FACING","category":"Secondary POP","total_pos":2,"pos_visit":0,"pos_done":0,"init_date":null,"deadline":null,"new_deadline":null},
+    {"material":"PLACA DE CIGARRERA","category":"Primary POP","total_pos":65,"pos_visit":65,"pos_done":65,"init_date":"2026-01-22","deadline":"2026-01-24","new_deadline":null},
+    {"material":"PLACA DE CIGARRERA","category":"Primary POP","total_pos":460,"pos_visit":460,"pos_done":460,"init_date":"2026-01-12","deadline":"2026-01-28","new_deadline":"2026-02-11"},
+    {"material":"PLACA DE CIGARRERA","category":"Primary POP","total_pos":36,"pos_visit":36,"pos_done":34,"init_date":"2026-01-22","deadline":"2026-01-24","new_deadline":"2026-02-11"},
+    {"material":"DIPTICO","category":"B2B Material","total_pos":70,"pos_visit":70,"pos_done":68,"init_date":"2026-01-26","deadline":"2026-02-12","new_deadline":"2026-05-01"},
+    {"material":"DIPTICO","category":"B2B Material","total_pos":574,"pos_visit":574,"pos_done":537,"init_date":"2026-01-26","deadline":"2026-02-12","new_deadline":"2026-05-01"},
+    {"material":"DIPTICO","category":"B2B Material","total_pos":40,"pos_visit":40,"pos_done":37,"init_date":"2026-01-26","deadline":"2026-02-12","new_deadline":"2026-05-01"},
+    {"material":"DISPENSER VUSE/VUSE","category":"Secondary POP","total_pos":65,"pos_visit":0,"pos_done":0,"init_date":null,"deadline":null,"new_deadline":null},
+    {"material":"DISPENSER VUSE/VUSE","category":"Secondary POP","total_pos":207,"pos_visit":207,"pos_done":207,"init_date":"2026-01-13","deadline":"2026-01-26","new_deadline":"2026-04-15"},
+    {"material":"DISPENSER VUSE/VUSE","category":"Secondary POP","total_pos":29,"pos_visit":0,"pos_done":0,"init_date":null,"deadline":null,"new_deadline":null},
+    {"material":"PLACA DE DISPENSER","category":"Secondary POP","total_pos":65,"pos_visit":59,"pos_done":59,"init_date":"2026-01-12","deadline":"2026-01-28","new_deadline":"2026-02-11"},
+    {"material":"PLACA DE DISPENSER","category":"Secondary POP","total_pos":61,"pos_visit":61,"pos_done":58,"init_date":"2026-01-12","deadline":"2026-01-28","new_deadline":"2026-02-11"},
+    {"material":"PLACA DE DISPENSER","category":"Secondary POP","total_pos":29,"pos_visit":21,"pos_done":21,"init_date":"2026-01-12","deadline":"2026-01-28","new_deadline":"2026-02-11"},
+    {"material":"PLACA FACING","category":"Secondary POP","total_pos":1,"pos_visit":1,"pos_done":1,"init_date":"2026-03-11","deadline":"2026-03-12","new_deadline":null},
+    {"material":"PLACA FACING","category":"Secondary POP","total_pos":5,"pos_visit":5,"pos_done":5,"init_date":"2026-03-11","deadline":"2026-03-12","new_deadline":null},
+    {"material":"TABLE TENT","category":"Secondary POP","total_pos":70,"pos_visit":70,"pos_done":68,"init_date":"2026-01-22","deadline":"2026-02-09","new_deadline":"2026-05-31"},
+    {"material":"TABLE TENT","category":"Secondary POP","total_pos":574,"pos_visit":574,"pos_done":569,"init_date":"2026-01-22","deadline":"2026-02-09","new_deadline":"2026-05-31"},
+    {"material":"TABLE TENT","category":"Secondary POP","total_pos":40,"pos_visit":40,"pos_done":40,"init_date":"2026-01-22","deadline":"2026-02-09","new_deadline":"2026-05-31"}
+  ],
+  "LS CORE": [
+    {"material":"TABLE TENT","category":"Secondary POP","total_pos":15,"pos_visit":15,"pos_done":15,"init_date":"2026-04-01","deadline":"2026-04-18","new_deadline":null},
+    {"material":"TABLE TENT","category":"Secondary POP","total_pos":10,"pos_visit":10,"pos_done":10,"init_date":"2026-04-01","deadline":"2026-04-18","new_deadline":null},
+    {"material":"TABLE TENT","category":"Secondary POP","total_pos":1,"pos_visit":1,"pos_done":1,"init_date":"2026-04-01","deadline":"2026-04-18","new_deadline":null},
+    {"material":"VIBRIN","category":"Secondary POP","total_pos":66,"pos_visit":66,"pos_done":66,"init_date":"2026-03-06","deadline":"2026-03-20","new_deadline":null},
+    {"material":"VIBRIN","category":"Secondary POP","total_pos":1,"pos_visit":1,"pos_done":1,"init_date":"2026-03-11","deadline":"2026-03-20","new_deadline":null},
+    {"material":"VIBRIN","category":"Secondary POP","total_pos":3,"pos_visit":3,"pos_done":3,"init_date":"2026-03-11","deadline":"2026-03-19","new_deadline":null},
+    {"material":"STICKER COUNTER","category":"Secondary POP","total_pos":53,"pos_visit":53,"pos_done":47,"init_date":"2026-03-06","deadline":"2026-03-20","new_deadline":"2026-05-10"},
+    {"material":"STICKER COUNTER","category":"Secondary POP","total_pos":27,"pos_visit":27,"pos_done":27,"init_date":"2026-03-11","deadline":"2026-03-27","new_deadline":null},
+    {"material":"STICKER COUNTER","category":"Secondary POP","total_pos":3,"pos_visit":3,"pos_done":3,"init_date":"2026-03-11","deadline":"2026-03-20","new_deadline":null},
+    {"material":"STICKER COUNTER","category":"Secondary POP","total_pos":59,"pos_visit":53,"pos_done":51,"init_date":"2026-05-12","deadline":"2026-05-15","new_deadline":null},
+    {"material":"STICKER COUNTER","category":"Secondary POP","total_pos":4,"pos_visit":4,"pos_done":4,"init_date":"2026-05-12","deadline":"2026-05-15","new_deadline":null},
+    {"material":"STICKER COUNTER","category":"Secondary POP","total_pos":2,"pos_visit":2,"pos_done":2,"init_date":"2026-05-12","deadline":"2026-05-15","new_deadline":null}
+  ],
+  "ECLIPSE": [
+    {"material":"PLACA DE CIGARRERA","category":"Primary POP","total_pos":917,"pos_visit":913,"pos_done":518,"init_date":"2025-12-03","deadline":"2025-12-30","new_deadline":null},
+    {"material":"PLACA DE CIGARRERA","category":"Primary POP","total_pos":220,"pos_visit":218,"pos_done":121,"init_date":"2025-12-03","deadline":"2025-12-30","new_deadline":null},
+    {"material":"PLACA DE CIGARRERA","category":"Primary POP","total_pos":6,"pos_visit":6,"pos_done":5,"init_date":"2025-12-03","deadline":"2025-12-10","new_deadline":null},
+    {"material":"TABLE TENT","category":"Secondary POP","total_pos":573,"pos_visit":573,"pos_done":565,"init_date":"2026-01-20","deadline":"2026-02-06","new_deadline":"2026-05-31"}
+  ]
+};
 
-// ── helpers ──────────────────────────────────────────────────────────────
+// Color palette per campaign
 function getCampaignColors(name) {
   const n = name.toUpperCase();
-  if (/ECLIPSE/.test(n) || /VIBRIN/.test(n)) return { accent:'#e85d45', cardBg:'#fde8e4', dateBg:'#fcd6d0' };
-  if (/VELO/.test(n))  return { accent:'#3ab4e0', cardBg:'#daf0fb', dateBg:'#b8e3f5' };
-  if (/VUSE/.test(n))  return { accent:'#7c4fcc', cardBg:'#ede4fc', dateBg:'#d9c8f7' };
-  return                       { accent:'#5b7fa6', cardBg:'#e4eaf3', dateBg:'#ccd5e3' };
-}
-
-function getPSKey(row) {
-  return row['PRIMARY/SECONDARY'] || row['PRIMARY/SECONDARY/B2B'] || '';
-}
-
-function getCategory(row) {
-  const mat = (row.Material || '').toUpperCase();
-  const ps  = getPSKey(row).toUpperCase();
-  if (/B2B/.test(mat) || /FLYER B2B/.test(mat) || /HOJA CAT/.test(mat) || /ABANICO/.test(mat)) return 'B2B Material';
-  if (/B2B/.test(ps)) return 'B2B Material';
-  if (ps === 'PRIMARY')   return 'Primary POP';
-  if (ps === 'SECONDARY') return 'Secondary POP';
-  if (ps === 'SPECIAL')   return 'Special Implementations';
-  return 'Secondary POP';
-}
-
-function groupByCategory(rows) {
-  const cats = {};
-  rows.forEach(r => {
-    const c = getCategory(r);
-    if (!cats[c]) cats[c] = [];
-    cats[c].push(r);
-  });
-  return cats;
-}
-
-function sumField(rows, field) {
-  return rows.reduce((a, r) => a + (Number(r[field]) || 0), 0);
-}
-
-function fmtDate(s) {
-  if (!s || s === 'TBD') return '—';
-  try {
-    const d = new Date(s);
-    return d.toLocaleDateString('es-PE', { day:'2-digit', month:'short', year:'numeric' });
-  } catch { return s; }
-}
-
-function maxDate(a, b) {
-  if (!a) return b; if (!b) return a;
-  if (a === 'TBD') return b; if (b === 'TBD') return a;
-  return a > b ? a : b;
-}
-
-function minDate(a, b) {
-  if (!a) return b; if (!b) return a;
-  if (a === 'TBD') return b; if (b === 'TBD') return a;
-  return a < b ? a : b;
-}
-
-function getDates(rows) {
-  let kickOff = null, projEnd = null;
-  rows.forEach(r => {
-    kickOff = minDate(kickOff, r['Original Initial Date']);
-    const cand = maxDate(r['Deadline'], r['New Deadline']);
-    projEnd = maxDate(projEnd, cand);
-  });
-  return { kickOff, projEnd };
-}
-
-// ── chart counter ──
-let chartIdx = 0;
-
-function buildCategoryCard(catName, rows, viewMode, accent) {
-  const totalPos   = sumField(rows, 'Total POS /Q');
-  const visitPos   = sumField(rows, 'POS/Q Visit');
-  const donePos    = sumField(rows, 'POS/Q Done');
-
-  let completed, total, pct;
-  if (viewMode === 'prog') {
-    // Programación: POS_Visit / Total_POS
-    completed = visitPos;
-    total     = totalPos;
-    pct       = total > 0 ? Math.round(completed / total * 100) : 0;
-  } else {
-    // Efectividad: POS_Done / POS_Visit
-    completed = donePos;
-    total     = visitPos;
-    pct       = total > 0 ? Math.round(completed / total * 100) : 0;
+  if (n.includes('ECLIPSE') || n.includes('VIBRIN')) {
+    return { accent: '#e85d45', cardBg: '#fde8e4', dateBg: '#fcd6d0' };
   }
-  const pending = Math.max(0, total - completed);
+  if (n.includes('VELO')) {
+    return { accent: '#3ab4e0', cardBg: '#daf0fb', dateBg: '#b8e3f5' };
+  }
+  if (n.includes('VUSE')) {
+    return { accent: '#7c4fcc', cardBg: '#ede4fc', dateBg: '#d9c8f7' };
+  }
+  return { accent: '#5b7fa6', cardBg: '#e4eaf3', dateBg: '#ccd5e3' };
+}
 
-  const mats = [...new Set(rows.map(r => r.Material).filter(Boolean))];
-  const cId  = 'chart_' + chartIdx++;
-  const posLabel = viewMode === 'prog' ? `${totalPos} POS` : `${visitPos} POS`;
+// Compute aggregated category stats
+function computeCategories(rows, mode) {
+  // mode: 'visit' → POS_Visit / Total_POS ; 'effectiveness' → POS_Done / POS_Visit
+  const cats = {};
+  const CAT_ORDER = ['B2B Material', 'Primary POP', 'Secondary POP', 'Special Implementations'];
+
+  rows.forEach(r => {
+    const c = r.category;
+    if (!cats[c]) cats[c] = { total: 0, visit: 0, done: 0, materials: new Set() };
+    cats[c].total += r.total_pos;
+    cats[c].visit += r.pos_visit;
+    cats[c].done += r.pos_done;
+    cats[c].materials.add(r.material);
+  });
+
+  return CAT_ORDER.filter(c => cats[c]).map(c => {
+    const d = cats[c];
+    let pct, ref;
+    if (mode === 'visit') {
+      pct = d.total > 0 ? Math.round(d.visit / d.total * 100) : 0;
+      ref = d.total;
+    } else {
+      pct = d.visit > 0 ? Math.round(d.done / d.visit * 100) : 0;
+      ref = d.visit;
+    }
+    return { name: c, pct, ref, completed: mode === 'visit' ? d.visit : d.done,
+             total: mode === 'visit' ? d.total : d.visit,
+             materials: [...d.materials] };
+  });
+}
+
+function getDateInfo(rows) {
+  const inits = rows.map(r => r.init_date).filter(Boolean).sort();
+  const ends = [...rows.map(r => r.deadline).filter(Boolean),
+                 ...rows.map(r => r.new_deadline).filter(Boolean)].sort();
+  return {
+    kickoff: inits.length ? formatDate(inits[0]) : '—',
+    projEnd: ends.length ? formatDate(ends[ends.length - 1]) : '—'
+  };
+}
+
+function formatDate(d) {
+  if (!d) return '—';
+  const [y, m, day] = d.split('-');
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return `${parseInt(day)} ${months[parseInt(m)-1]} ${y}`;
+}
+
+let chartCounter = 0;
+
+function renderCampaignBlock(name, rows, colors) {
+  const blockId = 'block_' + name.replace(/\s+/g,'_').replace(/[^a-zA-Z0-9_]/g,'');
+  const dates = getDateInfo(rows);
 
   return `
-  <div class="pop-card" style="background:${accent};">
-    <div class="pop-card-title">${catName}<br><span style="font-size:10px;opacity:.85">${posLabel}</span></div>
-    <div class="donut-wrap">
-      <canvas id="${cId}" width="100" height="100"></canvas>
-      <div class="donut-pct">${pct}%</div>
+  <div class="campaign-block" id="${blockId}">
+    <div class="campaign-title" style="color:${colors.accent}">${name}</div>
+    <div class="tab-bar">
+      <button class="tab-btn tab-visit" 
+        data-block="${blockId}" data-tab="visit"
+        style="border-color:${colors.accent}; background:${colors.accent}; color:#fff;"
+        onclick="switchTab('${blockId}','visit','${colors.accent}','${colors.cardBg}','${colors.dateBg}')">
+        Programación de visitas
+      </button>
+      <button class="tab-btn tab-eff"
+        data-block="${blockId}" data-tab="eff"
+        style="border-color:${colors.accent}; background:transparent; color:${colors.accent};"
+        onclick="switchTab('${blockId}','eff','${colors.accent}','${colors.cardBg}','${colors.dateBg}')">
+        Efectividad de visitas
+      </button>
     </div>
-    <div class="legend-row">
-      <div class="legend-item"><div class="legend-dot" style="background:rgba(255,255,255,0.25)"></div>Pending</div>
-      <div class="legend-item"><div class="legend-dot" style="background:rgba(255,255,255,0.92)"></div>Completed</div>
+    <div class="tab-content" id="${blockId}_visit">
+      ${renderCardsRow(rows, 'visit', colors, dates, blockId+'_visit')}
     </div>
-    <div class="materials-list">
-      ${mats.map(m=>`<span class="mat-chip">${m}</span>`).join('')}
+    <div class="tab-content" id="${blockId}_eff" style="display:none;">
+      ${renderCardsRow(rows, 'eff', colors, dates, blockId+'_eff')}
     </div>
-  </div>
-  <script>
-  (function(){
-    var ctx = document.getElementById('${cId}').getContext('2d');
-    new Chart(ctx, {
+  </div>`;
+}
+
+function renderCardsRow(rows, mode, colors, dates, containerId) {
+  const cats = computeCategories(rows, mode);
+  let html = `<div class="cards-row" id="${containerId}_row">`;
+  
+  cats.forEach((cat, i) => {
+    const cid = `chart_${++chartCounter}`;
+    html += `
+    <div class="donut-card" style="background:${colors.accent};" data-cid="${cid}" 
+         data-pct="${cat.pct}" data-completed="${cat.completed}" data-ref="${cat.total}">
+      <div class="card-title">${cat.name}<br><span style="font-weight:600;opacity:0.85;font-size:0.72rem">${cat.ref} POS</span></div>
+      <div class="donut-wrapper">
+        <canvas id="${cid}" width="100" height="100"></canvas>
+        <div class="donut-pct">${cat.pct}%</div>
+      </div>
+      <div class="legend-row">
+        <span><span class="legend-dot" style="background:rgba(255,255,255,0.25)"></span>Pending</span>
+        <span><span class="legend-dot" style="background:rgba(255,255,255,0.92)"></span>Completed</span>
+      </div>
+      <div class="materials-chips">
+        ${cat.materials.map(m => `<span class="chip">${m}</span>`).join('')}
+      </div>
+    </div>`;
+  });
+
+  // Date card
+  html += `
+    <div class="date-card" style="background:${colors.accent};">
+      <div class="date-card-title">📅 Campaign Dates</div>
+      <div class="date-item" style="background:${colors.dateBg}">
+        <div class="date-label">Kick off</div>
+        <div class="date-value">${dates.kickoff}</div>
+      </div>
+      <div class="date-item" style="background:${colors.dateBg}">
+        <div class="date-label">Projected end date</div>
+        <div class="date-value">${dates.projEnd}</div>
+      </div>
+    </div>`;
+
+  html += `</div>`;
+  return html;
+}
+
+function switchTab(blockId, tab, accent, cardBg, dateBg) {
+  const visitEl = document.getElementById(blockId + '_visit');
+  const effEl = document.getElementById(blockId + '_eff');
+  const visitBtn = document.querySelector(`#${blockId} .tab-visit`);
+  const effBtn = document.querySelector(`#${blockId} .tab-eff`);
+
+  if (tab === 'visit') {
+    visitEl.style.display = '';
+    effEl.style.display = 'none';
+    visitBtn.style.background = accent; visitBtn.style.color = '#fff';
+    effBtn.style.background = 'transparent'; effBtn.style.color = accent;
+  } else {
+    visitEl.style.display = 'none';
+    effEl.style.display = '';
+    effBtn.style.background = accent; effBtn.style.color = '#fff';
+    visitBtn.style.background = 'transparent'; visitBtn.style.color = accent;
+  }
+}
+
+function initCharts() {
+  document.querySelectorAll('[data-cid]').forEach(card => {
+    const cid = card.dataset.cid;
+    const pct = parseInt(card.dataset.pct);
+    const canvas = document.getElementById(cid);
+    if (!canvas || canvas._chartInited) return;
+    canvas._chartInited = true;
+    new Chart(canvas, {
       type: 'doughnut',
       data: {
         datasets: [{
-          data: [${pending}, ${completed}],
+          data: [100 - pct, pct],
           backgroundColor: ['rgba(255,255,255,0.25)', 'rgba(255,255,255,0.92)'],
-          borderWidth: 0
+          borderWidth: 0,
+          hoverOffset: 0
         }]
       },
       options: {
         responsive: false,
         cutout: '72%',
-        plugins: { legend:{ display:false }, tooltip:{ enabled:false } },
-        animation: { duration: 600 }
+        plugins: { legend: { display: false }, tooltip: { enabled: false } },
+        animation: { duration: 600 },
+        events: []
       }
     });
-  })();
-  <\/script>`;
+  });
 }
 
-function buildDateCard(rows, colors) {
-  const { kickOff, projEnd } = getDates(rows);
-  return `
-  <div class="date-card" style="background:${colors.cardBg};">
-    <div class="date-card-title" style="color:${colors.accent};">📅 Campaign<br>Dates</div>
-    <div class="date-item" style="background:${colors.dateBg};">
-      <div class="date-label" style="color:${colors.accent};">Kick off</div>
-      <div class="date-value" style="color:${colors.accent};">${fmtDate(kickOff)}</div>
-    </div>
-    <div class="date-item" style="background:${colors.dateBg};">
-      <div class="date-label" style="color:${colors.accent};">Projected end</div>
-      <div class="date-value" style="color:${colors.accent};">${fmtDate(projEnd)}</div>
-    </div>
-  </div>`;
-}
-
-function buildCampaignBlock(sheetName, rows) {
-  const colors   = getCampaignColors(sheetName);
-  const blockId  = 'block_' + sheetName.replace(/\s+/g,'_');
-  const catOrder = ['B2B Material','Primary POP','Secondary POP','Special Implementations'];
-
-  function renderView(viewMode) {
-    const catMap   = groupByCategory(rows);
-    let cards = '';
-    catOrder.forEach(cat => {
-      if (catMap[cat]) cards += buildCategoryCard(cat, catMap[cat], viewMode, colors.accent);
-    });
-    cards += buildDateCard(rows, colors);
-    return cards;
-  }
-
-  return `
-  <div class="campaign-block" id="${blockId}">
-    <div class="campaign-title" style="color:${colors.accent};">${sheetName}</div>
-    <div class="tabs">
-      <button class="tab-btn tab-prog active-tab" onclick="switchTab('${blockId}','prog')"
-        style="background:${colors.accent};color:#fff;border-color:${colors.accent};">
-        Programación de visitas
-      </button>
-      <button class="tab-btn tab-efec" onclick="switchTab('${blockId}','efec')"
-        style="background:transparent;color:${colors.accent};border-color:${colors.accent};">
-        Efectividad de visitas
-      </button>
-    </div>
-    <div class="view-prog">
-      <div class="cards-row">${renderView('prog')}</div>
-    </div>
-    <div class="view-efec" style="display:none;">
-      <div class="cards-row">${renderView('efec')}</div>
-    </div>
-  </div>`;
-}
-
-// ── render all ──────────────────────────────────────────────────────────
+// Build HTML
 const app = document.getElementById('app');
 let html = '';
-for (const [name, rows] of Object.entries(RAW)) {
-  html += buildCampaignBlock(name, rows);
-}
+Object.entries(DATA).forEach(([name, rows]) => {
+  const colors = getCampaignColors(name);
+  html += renderCampaignBlock(name, rows, colors);
+});
 app.innerHTML = html;
 
-// execute inline scripts (Chart.js inits)
-app.querySelectorAll('script').forEach(s => {
-  const ns = document.createElement('script');
-  ns.textContent = s.textContent;
-  document.body.appendChild(ns);
+// Init all charts
+initCharts();
+
+// Re-init charts when tab switches (charts in hidden tabs need re-render)
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => setTimeout(initCharts, 50));
 });
-
-// ── tab switching ────────────────────────────────────────────────────────
-function switchTab(blockId, mode) {
-  const block  = document.getElementById(blockId);
-  const colors = getCampaignColors(blockId.replace('block_','').replace(/_/g,' '));
-  const btnProg = block.querySelector('.tab-prog');
-  const btnEfec = block.querySelector('.tab-efec');
-  const viewP   = block.querySelector('.view-prog');
-  const viewE   = block.querySelector('.view-efec');
-
-  if (mode === 'prog') {
-    btnProg.style.background    = colors.accent;
-    btnProg.style.color         = '#fff';
-    btnEfec.style.background    = 'transparent';
-    btnEfec.style.color         = colors.accent;
-    viewP.style.display = ''; viewE.style.display = 'none';
-  } else {
-    btnEfec.style.background    = colors.accent;
-    btnEfec.style.color         = '#fff';
-    btnProg.style.background    = 'transparent';
-    btnProg.style.color         = colors.accent;
-    viewE.style.display = ''; viewP.style.display = 'none';
-  }
-}
 </script>
 </body>
 </html>

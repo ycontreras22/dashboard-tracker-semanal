@@ -261,6 +261,8 @@ function getCampaignColors(name) {
   const n = name.toUpperCase();
   if (n.includes('ECLIPSE') || n.includes('VIBRIN'))
     return { accent: '#e85d45', cardBg: '#fde8e4', datesBg: '#fcd6d0', textDark: '#c04a33' };
+  if (n.includes('MCLAREN'))
+    return { accent: '#6b7280', cardBg: '#e9eaec', datesBg: '#d1d5db', textDark: '#4b5563' };
   if (n.includes('VELO'))
     return { accent: '#3ab4e0', cardBg: '#daf0fb', datesBg: '#b8e3f5', textDark: '#2390b8' };
   if (n.includes('VUSE'))
